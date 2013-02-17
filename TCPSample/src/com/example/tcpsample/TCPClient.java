@@ -3,13 +3,23 @@ package com.example.tcpsample;
 import android.util.Log;
 import java.io.*;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.http.conn.util.InetAddressUtils;
 
 
 public class TCPClient {
 
     private String serverMessage;
-    public static final String SERVERIP = "128.61.46.210"; //your computer IP address
+
+    //public static String SERVERIP = "";
+    public static final String SERVERIP = "192.168.1.231"; //your computer IP address
+
+    //public static final String SERVERIP = "128.61.46.210"; //your computer IP address
+
     public static final int SERVERPORT = 4444;
     private OnMessageReceived mMessageListener = null;
     private boolean mRun = false;
@@ -46,7 +56,8 @@ public class TCPClient {
         try {
             //here you must put your computer's IP address.
             InetAddress serverAddr = InetAddress.getByName(SERVERIP);
-
+        	//SERVERIP = getIPAddress();
+        	//Log.d("DEBUG", "Susmita's SERVERIP "+SERVERIP);
             Log.e("TCP Client", "C: Connecting...");
 
             //create a socket to make the connection with the server
@@ -103,4 +114,36 @@ public class TCPClient {
     public interface OnMessageReceived {
         public void messageReceived(String message);
     }
+    
+    /**
+     * Get IP address from first non-localhost interface
+     * @param ipv4  true=return ipv4, false=return ipv6
+     * @return  address or empty string
+     */
+    /*
+    public String getIPAddress() {
+        try {
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : interfaces) {
+                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+                for (InetAddress addr : addrs) {
+                    if (!addr.isLoopbackAddress()) {
+                        String sAddr = addr.getHostAddress().toUpperCase();
+                        Log.d("DEBUG", "sAddr version 1 "+sAddr);
+                        boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr); 
+                        if (true) {
+                            if (isIPv4){ 
+                            	//System.out.println(sAddr);
+                            	Log.d("DEBUG", "sAddr version 2 "+sAddr);
+                                return sAddr;
+                            }
+                        } 
+                    }
+                }
+            }
+        } catch (Exception ex) { } // for now eat exceptions
+        
+        return "";
+    }
+    */
 }
