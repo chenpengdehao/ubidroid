@@ -1,12 +1,18 @@
 package com.example.tcpsample;
 
+import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.http.conn.util.InetAddressUtils;
 
@@ -26,6 +32,10 @@ public class TCPClient {
 
     PrintWriter out;
     BufferedReader in;
+    FileInputStream fos;
+    
+    byte[] data;
+    int b;
 
     /**
      *  Constructor of the class. OnMessagedReceived listens for the messages received from server
@@ -50,7 +60,37 @@ public class TCPClient {
     }
 
     public void run() {
+    	
+    	//Vector picVec = new Vector();
+    	
+    	File pictureFileDir = getDir();
+	    if (!pictureFileDir.exists()) {
 
+	      Log.e("Picture Directory", "Cannot open");
+	      return;
+
+	    }
+
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss");
+	    String date = dateFormat.format(new Date());
+	    String photoFile = "Picture_" + date + ".jpg";
+
+	    String filename = pictureFileDir.getPath() + File.separator + photoFile;
+
+	    File pictureFile = new File(filename);
+
+	    try {
+	      
+	      
+	      
+	      
+	    } 
+	    catch (Exception error) {
+	      Log.e("Picture Directory", "File could not read");
+	    }
+	   	  
+	  
+    	
         mRun = true;
 
         try {
@@ -86,7 +126,14 @@ public class TCPClient {
                     serverMessage = null;
 
                 }
-
+                //Sending picture file
+                fos = new FileInputStream(pictureFile);
+      	      
+	      	    while((b = fos.read())!= -1){
+	      	    	  out.print(b);
+	      	    	  
+	      	    }
+	      	    Log.d("DEBUG", "Picture file sent");
 
                 Log.e("RESPONSE FROM SERVER", "S: Received Message: '" + serverMessage + "'");
 
@@ -99,6 +146,7 @@ public class TCPClient {
                 //the socket must be closed. It is not possible to reconnect to this socket
                 // after it is closed, which means a new socket instance has to be created.
                 socket.close();
+                fos.close();
             }
 
         } catch (Exception e) {
@@ -114,6 +162,11 @@ public class TCPClient {
     public interface OnMessageReceived {
         public void messageReceived(String message);
     }
+    
+    private File getDir() {
+	    File sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+	    return new File(sdDir, "CameraDemo");
+	}
     
     /**
      * Get IP address from first non-localhost interface
