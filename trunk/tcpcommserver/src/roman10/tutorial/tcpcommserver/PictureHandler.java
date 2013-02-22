@@ -8,23 +8,39 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
-import android.os.Environment;
+
 import android.util.Log;
 import android.widget.Toast;
 
 public class PictureHandler implements PictureCallback {
 	private final static String DEBUG_TAG = "PictureHandler";
 	private final Context mContext;
+	private final Activity act;
 	Socket s;
 	  
-	public PictureHandler(Context context, Socket s) {
+	public PictureHandler(Context context, Socket s, Activity act) {
 	    this.mContext = context;
 	    this.s = s;
+	    this.act = act;
 	  }
 
+	 public void showMsgonui(final String str)
+	    {
+	    	act.runOnUiThread(
+					new Runnable()
+					{	
+						public void run() 
+						{
+							Toast.makeText(mContext, str, Toast.LENGTH_LONG).show();
+						}
+					}
+					);
+	    }
+	
 	  @Override
 	  public void onPictureTaken(byte[] data, Camera camera) {
 
@@ -35,12 +51,10 @@ public class PictureHandler implements PictureCallback {
 		 }
 		 catch(IOException e)
 		 {
-			 Toast.makeText(mContext, "Failed to Send image.",
-			          Toast.LENGTH_LONG).show();
+			 showMsgonui( "Failed to Send image.");
 		 }
 		  
-		  Toast.makeText(mContext, "Sent image.",
-		          Toast.LENGTH_LONG).show();
+		 showMsgonui( "Sent image.");
 		  
 		/*File pictureFileDir = getDir();
 	    if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
@@ -73,10 +87,5 @@ public class PictureHandler implements PictureCallback {
 	          Toast.LENGTH_LONG).show();
 	    }*/
 	        	
-	  }
-
-	  private File getDir() {
-	    File sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-	    return new File(sdDir, "CameraDemo");
 	  }
 	} 
