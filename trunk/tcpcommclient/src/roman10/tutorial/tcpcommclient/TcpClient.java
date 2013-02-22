@@ -19,28 +19,45 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 public class TcpClient extends Activity {
     /** Called when the activity is firstx created. */
+	Button btn; 
+	Thread t = null ;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        runTcpClientThread();
+        btn = (Button)findViewById(R.id.button1);
         //finish();
+        
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                runTcpClientThread();
+
+            }
+        });
     }
+    
+    
     
     private static final String TCP_SERVER_IP = "128.61.34.175";
     private static final int TCP_SERVER_PORT = 4444;
 	
     void runTcpClientThread()
     {
-    	new Thread(new Runnable() {
-            public void run() {
-            	runTcpClient();// do stuff that doesn't touch the UI here
-            }
-    }).start();
+    	if(t==null){
+	    	t = new Thread(new Runnable() {
+	            public void run() {
+	            	runTcpClient();// do stuff that doesn't touch the UI here
+	            }
+    });
+    	t.start();}
     }
 	
     public void showMsgonui(final String str)
