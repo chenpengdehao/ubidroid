@@ -143,6 +143,7 @@ public class TcpServer extends Activity {
 					public void run() 
 					{
 						Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
+						textDisplay.append(str);
 					}
 				}
 				);
@@ -168,13 +169,13 @@ public class TcpServer extends Activity {
 			if(incomingMsg.equals("click"));
 			{
 				startCamera();
-				mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),s));
+				mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),s,this));
 				showMsgonui("Got Click");
 							
 			}
 			
 			//send a message
-			String outgoingMsg = "$@#* aarrrg ! " + System.getProperty("line.separator");
+			String outgoingMsg = "$@#* aarrrg !" + System.getProperty("line.separator");
 			showMsgonui("Recieved $@#* from somebody");
 			
 			out.write(outgoingMsg);
