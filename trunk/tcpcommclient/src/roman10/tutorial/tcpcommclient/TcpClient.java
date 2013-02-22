@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -18,6 +19,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 public class TcpClient extends Activity {
     /** Called when the activity is firstx created. */
@@ -25,51 +27,58 @@ public class TcpClient extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        runTcpClient();
-        finish();
+        runTcpClientThread();
+        //finish();
     }
     
-    private static final int TCP_SERVER_PORT = 21111;
+    private static final String TCP_SERVER_IP = "128.61.34.175";
+    private static final int TCP_SERVER_PORT = 4444;
 	
+    void runTcpClientThread()
+    {
+    	new Thread(new Runnable() {
+            public void run() {
+            	runTcpClient();// do stuff that doesn't touch the UI here
+            }
+    }).start();
+    }
+	
+    public void showMsgonui(final String str)
+    {
+    	runOnUiThread(
+				new Runnable()
+				{	
+					public void run() 
+					{
+						Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
+					}
+				}
+				);
+    }
+    
 	private void runTcpClient() {
-		 int filesize=6022386;
-		 int current = 0;
+		 
     	try {
-			Socket s = new Socket("localhost", TCP_SERVER_PORT);
-			byte [] mybytearray  = new byte [filesize];
-            InputStream is = s.getInputStream();
-            File pictureFileDir = getDir();
-            String filename = pictureFileDir.getPath();
-            File myFile = new File(filename);
-            //myFile.createNewFile();
-            FileOutputStream fos = new FileOutputStream(myFile);
-            //BufferedOutputStream bos = new BufferedOutputStream(fos);
-            int bytesRead = is.read(mybytearray,0,mybytearray.length);
-            	
+    		InetAddress serverAddr = InetAddress.getByName(TCP_SERVER_IP);
+			Socket s = new Socket(serverAddr, TCP_SERVER_PORT);
+			
 			BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-			//send output msg
-			/*String outMsg = "TCP connecting to " + TCP_SERVER_PORT + System.getProperty("line.separator"); 
+			
+			//send output
+			String outMsg = "rubbush"; 
 			out.write(outMsg);
 			out.flush();
-			Log.i("TcpClient", "sent: " + outMsg);*/
+			Log.i("TcpClient", "sent: " + outMsg);
+			showMsgonui("sent: " + outMsg);
 			Log.i("TcpClient", "receving ");
 			//accept server response
-			bytesRead = is.read(mybytearray,0,mybytearray.length);
-            current = bytesRead;
-			do {
-	               bytesRead =
-	                  is.read(mybytearray, current, (mybytearray.length-current));
-	               if(bytesRead >= 0) current += bytesRead;
-	            } while(bytesRead > -1);
-			fos.write(mybytearray, 0 , current);
-			fos.flush();
-			fos.close();
-			s.close();
-			while(true);
-			//String inMsg = in.readLine() + System.getProperty("line.separator");
-			//Log.i("TcpClient", "received: " + inMsg);
+			
+			String inMsg = in.readLine() + System.getProperty("line.separator");
+			Log.i("TcpClient", "received: " + inMsg);
+			showMsgonui("received: " + inMsg);
 			//close connection
+			s.close();
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
