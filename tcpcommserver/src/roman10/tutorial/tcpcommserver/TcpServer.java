@@ -166,14 +166,19 @@ public class TcpServer extends Activity {
 			//textDisplay.append("received: " + incomingMsg);
 			showMsgonui("received: " + incomingMsg);
 			
-			if(incomingMsg.equals("click"));
+			if(incomingMsg.equals("click"))
 			{
 				startCamera();
 				mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),s,this));
+				if (mCamera != null) {
+					mCamera.release();
+					mCamera = null;
+				}
 				showMsgonui("Got Click");
 							
 			}
-			
+			else
+			{
 			//send a message
 			String outgoingMsg = "$@#* aarrrg !" + System.getProperty("line.separator");
 			showMsgonui("Recieved $@#* from somebody");
@@ -183,6 +188,7 @@ public class TcpServer extends Activity {
 			
 			Log.i("TcpServer", "sent: " + outgoingMsg);
 			showMsgonui("sent: " + outgoingMsg);
+			}
 			//textDisplay.append("sent: " + outgoingMsg);
 			//SystemClock.sleep(5000);
 			s.close();
