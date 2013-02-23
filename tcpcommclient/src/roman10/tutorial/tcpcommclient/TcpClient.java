@@ -92,7 +92,7 @@ public class TcpClient extends Activity {
 					{				
 						Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
 						Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
-						iv.setImageBitmap(bmp);
+						iv.setImageBitmap(resizedBitmap);
 						iv.requestFocus();
 						Log.i("TcpClient", "Shown image ");
 						Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();
@@ -109,7 +109,7 @@ public class TcpClient extends Activity {
             Log.i("TcpClient", "receiving ");
             while ((data = in.read())>=0) {
                 out.write(data);
-                Log.i("TcpClient", ".");
+                //Log.i("TcpClient", ".");
                 count++;
             }
             Log.d("TcpClient", "recieved byte count "+Integer.toString(count));
@@ -118,6 +118,7 @@ public class TcpClient extends Activity {
             //handle it
         	Log.i("TcpClient", "IO exception reading picture ");
         }
+        Log.d("TcpClient", "recieved NOTHING ");
         return null;
     }
     
