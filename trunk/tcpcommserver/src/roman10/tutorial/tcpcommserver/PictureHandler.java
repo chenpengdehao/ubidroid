@@ -19,42 +19,38 @@ import android.widget.Toast;
 public class PictureHandler implements PictureCallback {
 	private final static String DEBUG_TAG = "PictureHandler";
 	private final Context mContext;
-	private final Activity act;
+	
 	Socket s;
 	  
-	public PictureHandler(Context context, Socket s, Activity act) {
+	public PictureHandler(Context context) {
 	    this.mContext = context;
-	    this.s = s;
-	    this.act = act;
 	  }
-
-	 public void showMsgonui(final String str)
+	 
+	 void sendPictureThread(final byte[] data)
 	    {
-	    	act.runOnUiThread(
-					new Runnable()
-					{	
-						public void run() 
-						{
-							Toast.makeText(mContext, str, Toast.LENGTH_LONG).show();
-						}
-					}
-					);
+	    	new Thread(new Runnable() {
+	            public void run() {
+	            	try{
+	       			 OutputStream socketOutputStream = s.getOutputStream();
+	       			 socketOutputStream.write(data);
+	       		 }
+	       		 catch(IOException e)
+	       		 {
+	       			 Log.d(DEBUG_TAG, "Failed to Send image.");
+	       		 }
+	       		  
+	       		 Log.d(DEBUG_TAG, "Sent image.");// do stuff that doesn't touch the UI here
+	            }
+	    }).start();
 	    }
-	
+	 
 	  @Override
 	  public void onPictureTaken(byte[] data, Camera camera) {
 
 		  Log.d(DEBUG_TAG, "onPictureTaken - called");   
-		 try{
-			 OutputStream socketOutputStream = s.getOutputStream();
-			 socketOutputStream.write(data);
-		 }
-		 catch(IOException e)
-		 {
-			 showMsgonui( "Failed to Send image.");
-		 }
 		  
-		 showMsgonui( "Sent image.");
+		  sendPictureThread(data);
+		  
 		  
 		/*File pictureFileDir = getDir();
 	    if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
