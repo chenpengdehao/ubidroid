@@ -20,11 +20,13 @@ import android.widget.Toast;
 public class PictureHandler implements PictureCallback {
 	private final static String DEBUG_TAG = "PictureHandler";
 	private final Context mContext;
+	private final Camera c;
 	Socket s;
 	  
-	public PictureHandler(Context context,Socket s) {
+	public PictureHandler(Context context,Socket s,Camera c) {
 	    this.mContext = context;
 	    this.s = s;
+	    this.c = c;
 	  }
 	 
 	 void sendPictureThread(final byte[] data)
@@ -34,6 +36,7 @@ public class PictureHandler implements PictureCallback {
 	            	try{
 	       			 OutputStream socketOutputStream = s.getOutputStream();
 	       			 socketOutputStream.write(data);
+	       			 s.close();
 	       		 }
 	       		 catch(IOException e)
 	       		 {
@@ -49,7 +52,8 @@ public class PictureHandler implements PictureCallback {
 	  public void onPictureTaken(byte[] data, Camera camera) {
 
 		  Log.d(DEBUG_TAG, "onPictureTaken - called");   
-		  
+		  if(c != null)
+		  c.startPreview();
 		  sendPictureThread(data);
 		  
 		  
