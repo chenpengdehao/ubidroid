@@ -52,7 +52,7 @@ public class TcpClient extends Activity {
     
     
     
-    private static final String TCP_SERVER_IP = "143.215.132.104";
+    private static final String TCP_SERVER_IP = "128.61.36.65";
     private static final int TCP_SERVER_PORT = 4444;
 	
     void runTcpClientThread()
@@ -91,10 +91,11 @@ public class TcpClient extends Activity {
 					public void run() 
 					{				
 						Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
+						Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
 						iv.setImageBitmap(bmp);
 						iv.requestFocus();
 						Log.i("TcpClient", "Shown image ");
-						//Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();
 					}
 				}
 				);
@@ -133,8 +134,9 @@ public class TcpClient extends Activity {
 			}
 			else
 			{
-				showPic(pic);
 				showMsgonui("Showing: pic");
+				showPic(pic);
+				
 			}
 
     	}catch (UnknownHostException e) 
