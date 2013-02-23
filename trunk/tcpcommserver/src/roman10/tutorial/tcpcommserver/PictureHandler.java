@@ -11,10 +11,13 @@ import java.util.Date;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 public class PictureHandler implements PictureCallback {
@@ -22,11 +25,13 @@ public class PictureHandler implements PictureCallback {
 	private final Context mContext;
 	private final Camera c;
 	Socket s;
+	ImageView img; 
 	  
-	public PictureHandler(Context context,Socket s,Camera c) {
+	public PictureHandler(Context context,Socket s,Camera c, ImageView i) {
 	    this.mContext = context;
 	    this.s = s;
 	    this.c = c;
+	    this.img = i;
 	  }
 	 
 	 void sendPictureThread(final byte[] data)
@@ -52,10 +57,16 @@ public class PictureHandler implements PictureCallback {
 	  public void onPictureTaken(byte[] data, Camera camera) {
 
 		  Log.d(DEBUG_TAG, "onPictureTaken - called");   
-		  if(c != null)
+		  if(c != null){
+			  Bitmap bmp=BitmapFactory.decodeByteArray(data,0,data.length);
+				Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
+				img.setImageBitmap(bmp);
+				img.requestFocus();
+				Log.i("TcpClient", "Shown image ");
+				Toast.makeText(mContext, "Shown Image", Toast.LENGTH_LONG).show();
 		  c.startPreview();
 		  sendPictureThread(data);
-		  
+		  }
 		  
 		/*File pictureFileDir = getDir();
 	    if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
