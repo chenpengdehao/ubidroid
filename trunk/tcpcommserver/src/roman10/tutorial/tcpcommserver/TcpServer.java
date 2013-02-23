@@ -149,6 +149,24 @@ public class TcpServer extends Activity {
 				);
     }
     
+    private void takePicture()
+    {
+    	runOnUiThread(
+				new Runnable()
+				{	
+					public void run() 
+					{
+					    startCamera();
+						mCamera.takePicture(null, null, new PictureHandler(getApplicationContext()));
+						
+						if (mCamera != null) {
+							mCamera.release();
+							mCamera = null;
+						}
+					}
+				}
+				);
+    }
     private void runTcpServer() {
     	try {
 			ss = new ServerSocket(TCP_SERVER_PORT);
@@ -162,37 +180,31 @@ public class TcpServer extends Activity {
 			         
 			//receive a message
 			String incomingMsg = in.readLine() + System.getProperty("line.separator");
-			//Log.i("TcpServer", "received: " + incomingMsg);
-			//textDisplay.append("received: " + incomingMsg);
+			Log.i("TcpServer", "received: " + incomingMsg);
 			showMsgonui("received: " + incomingMsg);
 			
-			if(incomingMsg.equals("click"))
-			{
-				startCamera();
-				mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),s,this));
-				if (mCamera != null) {
-					mCamera.release();
-					mCamera = null;
-				}
-				showMsgonui("Got Click");
-							
-			}
-			else
-			{
-			//send a message
-			String outgoingMsg = "$@#* aarrrg !" + System.getProperty("line.separator");
-			showMsgonui("Recieved $@#* from somebody");
 			
-			out.write(outgoingMsg);
-			out.flush();
+			//showMsgonui("Hurray ... Got Click");
 			
-			Log.i("TcpServer", "sent: " + outgoingMsg);
-			showMsgonui("sent: " + outgoingMsg);
-			}
-			//textDisplay.append("sent: " + outgoingMsg);
-			//SystemClock.sleep(5000);
+			takePicture();
+									
+			
+			/*else
+			{
+				//send a message
+				String outgoingMsg = "$@#* aarrrg !" + System.getProperty("line.separator");
+				showMsgonui("Got $@#* from somebody");
+				
+				out.write(outgoingMsg);
+				out.flush();
+				
+				Log.i("TcpServer", "sent: " + outgoingMsg);
+				showMsgonui("sent: " + outgoingMsg);
+			}*/
+			
 			s.close();
 			}
+			
 		} catch (InterruptedIOException e) {
 			//if timeout occurs
 			e.printStackTrace();
