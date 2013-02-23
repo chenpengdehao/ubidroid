@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:background="@drawable/ubidroid_icon">
 
     <TextView
         android:id="@+id/text1"
@@ -15,6 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="0.43"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/transparent" />
 
 </LinearLayout>
