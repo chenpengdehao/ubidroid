@@ -149,7 +149,7 @@ public class TcpServer extends Activity {
 				);
     }
     
-    private void takePicture()
+    private void takePicture(final Socket s)
     {
     	runOnUiThread(
 				new Runnable()
@@ -157,7 +157,7 @@ public class TcpServer extends Activity {
 					public void run() 
 					{
 					    startCamera();
-						mCamera.takePicture(null, null, new PictureHandler(getApplicationContext()));
+						mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),s));
 						
 						if (mCamera != null) {
 							mCamera.release();
@@ -184,12 +184,13 @@ public class TcpServer extends Activity {
 			showMsgonui("received: " + incomingMsg);
 			
 			
-			//showMsgonui("Hurray ... Got Click");
+			if(incomingMsg.equals("click"+System.getProperty("line.separator")))
+			{
+				showMsgonui("Hurray ... Got Click");
 			
-			takePicture();
-									
-			
-			/*else
+				takePicture(s);
+			}						
+			else
 			{
 				//send a message
 				String outgoingMsg = "$@#* aarrrg !" + System.getProperty("line.separator");
@@ -200,9 +201,9 @@ public class TcpServer extends Activity {
 				
 				Log.i("TcpServer", "sent: " + outgoingMsg);
 				showMsgonui("sent: " + outgoingMsg);
-			}*/
+			}
 			
-			s.close();
+			//s.close();
 			}
 			
 		} catch (InterruptedIOException e) {
