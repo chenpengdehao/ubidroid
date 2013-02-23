@@ -52,18 +52,22 @@ public class TcpClient extends Activity {
     
     
     
-    private static final String TCP_SERVER_IP = "128.61.34.175";
+    private static final String TCP_SERVER_IP = "143.215.132.104";
     private static final int TCP_SERVER_PORT = 4444;
 	
     void runTcpClientThread()
     {
     	if(t==null){
-	    	t = new Thread(new Runnable() {
-	            public void run() {
-	            	runTcpClient();// do stuff that doesn't touch the UI here
+	    	t = new Thread(new Runnable() 
+	    	{
+	            public void run() 
+	            {
+	            	sendRequest();// do stuff that doesn't touch the UI here
 	            }
-    });
-    	t.start();}
+	         });
+    	}
+    	t.start();
+    	
     }
 	
     public void showMsgonui(final String str)
@@ -88,7 +92,9 @@ public class TcpClient extends Activity {
 					{				
 						Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
 						iv.setImageBitmap(bmp);
-						Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();
+						iv.requestFocus();
+						Log.i("TcpClient", "Shown image ");
+						//Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();
 					}
 				}
 				);
@@ -97,50 +103,64 @@ public class TcpClient extends Activity {
     public byte[] getPicture(InputStream in) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
+            int count = 0;
             int data;
+            Log.i("TcpClient", "receiving ");
             while ((data = in.read())>=0) {
                 out.write(data);
+                Log.i("TcpClient", ".");
+                count++;
             }
+            Log.d("TcpClient", "recieved byte count "+Integer.toString(count));
             return out.toByteArray();
         } catch(IOException ioe) {
             //handle it
+        	Log.i("TcpClient", "IO exception reading picture ");
         }
         return null;
     }
     
-	private void runTcpClient() {
-		 
-    	try {
-    		InetAddress serverAddr = InetAddress.getByName(TCP_SERVER_IP);
-			Socket s = new Socket("localhost", TCP_SERVER_PORT);
-			
-			//BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-			
-			//send output
-			String outMsg = "click"; 
-			out.write(outMsg);
-			out.flush();
-			Log.i("TcpClient", "sent: " + outMsg);
-			showMsgonui("sent: " + outMsg);
-			Log.i("TcpClient", "receiving ");
-			//accept server response
-			
+    private void getResponse(Socket s)
+    {
+    	try{
+	    	//accept server response	
 			byte[] pic = getPicture(s.getInputStream());
 			showMsgonui("received: pic");
 			if(pic == null)
 			{
 				showMsgonui("received: NULL pic");
+				Log.i("TcpClient", "NULL pic ");
 			}
 			else
 			{
 				showPic(pic);
-				showMsgonui("Shown: pic");
+				showMsgonui("Showing: pic");
 			}
-			Log.i("TcpClient", "Shown pic ");
+
+    	}catch (UnknownHostException e) 
+    	{
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+    }
+    
+	private void sendRequest() {
+		 
+    	try {
+    		InetAddress serverAddr = InetAddress.getByName(TCP_SERVER_IP);
+			Socket s = new Socket(serverAddr, TCP_SERVER_PORT);
 			
-			//close connection
-			s.close();
+			//BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));			
+			//send output
+			String outMsg = "click"+ System.getProperty("line.separator"); 
+			out.write(outMsg);
+			out.flush();
+			Log.i("TcpClient", "sent: " + outMsg);
+			showMsgonui("sent: " + outMsg);	
+			
+			getResponse(s);
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
