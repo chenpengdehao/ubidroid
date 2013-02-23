@@ -47,8 +47,12 @@ public class TcpServer extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         textDisplay = (TextView) this.findViewById(R.id.text1);
-        runTcpServerThread();
+        
+        startCamera();
         textDisplay.setText("Created server");
+        mPreview = new Preview(getApplicationContext(),mCamera);
+        
+        runTcpServerThread();
     }
     
     @Override
@@ -111,7 +115,7 @@ public class TcpServer extends Activity {
     private int findFrontFacingCamera() {
   	  int cameraId = -1;
   	    // Search for the front facing camera
-  	    int numberOfCameras = Camera.getNumberOfCameras();
+  	    /*int numberOfCameras = Camera.getNumberOfCameras();
   	    for (int i = 0; i < numberOfCameras; i++) {
   	      CameraInfo info = new CameraInfo();
   	      Camera.getCameraInfo(i, info);
@@ -120,16 +124,16 @@ public class TcpServer extends Activity {
   	        cameraId = i;
   	        break;
   	      }
-  	    }
+  	    }*/
   	    return 0;
   	  }
     
     private void startCamera()
     {
-    	 /*if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+    	 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
 			      Toast.makeText(this, "No camera on this device", Toast.LENGTH_LONG)
 			          .show();
-			    } else {*/
+			    } else {
 			      cameraId = findFrontFacingCamera();
 			      if (cameraId < 0) {
 			        Toast.makeText(this, "No front facing camera found.",
@@ -137,7 +141,7 @@ public class TcpServer extends Activity {
 			      } else {
 			    	  mCamera = Camera.open(cameraId);
 			      }
-    		//}
+    		}
     }
     
     public void showMsgonui(final String str)
@@ -161,9 +165,7 @@ public class TcpServer extends Activity {
 				{	
 					public void run() 
 					{
-					    startCamera();
-					    
-					    mPreview = new Preview(getApplicationContext(),mCamera);
+    
 					    //mCamera.startPreview();
 					    if(mCamera != null)
 					    {
