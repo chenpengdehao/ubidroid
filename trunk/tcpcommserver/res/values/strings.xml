@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, TcpServer!</string>
-    <string name="app_name">Tcpcommserver</string>
+    <string name="hello">Ubidroid Enabled</string>
+    <string name="app_name">Third Eye</string>
 
 </resources>
