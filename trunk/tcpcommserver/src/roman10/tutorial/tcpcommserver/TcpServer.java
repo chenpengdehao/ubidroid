@@ -22,6 +22,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +41,7 @@ public class TcpServer extends Activity {
     private int cameraId = 0;
     private Camera mCamera = null;
     private Preview mPreview = null;
+    ImageView image; 
     
     /** Called when the activity is first created. */
     @Override
@@ -47,7 +49,7 @@ public class TcpServer extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         textDisplay = (TextView) this.findViewById(R.id.text1);
-        
+        image = (ImageView)findViewById(R.id.imageView1);
         startCamera();
         textDisplay.setText("Created server");
         mPreview = new Preview(getApplicationContext(),mCamera);
@@ -169,13 +171,15 @@ public class TcpServer extends Activity {
 					    //mCamera.startPreview();
 					    if(mCamera != null)
 					    {
-					    	mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),s,mCamera));
+					    	mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),s,mCamera, image));
 					    }
 						
 					}
 				}
 				);
     }
+    
+    
     private void runTcpServer() {
     	try {
 			ss = new ServerSocket(TCP_SERVER_PORT);
