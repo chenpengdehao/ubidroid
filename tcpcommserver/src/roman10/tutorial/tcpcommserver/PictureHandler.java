@@ -3,6 +3,7 @@ package roman10.tutorial.tcpcommserver;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -19,11 +20,11 @@ import android.widget.Toast;
 public class PictureHandler implements PictureCallback {
 	private final static String DEBUG_TAG = "PictureHandler";
 	private final Context mContext;
-	
 	Socket s;
 	  
-	public PictureHandler(Context context) {
+	public PictureHandler(Context context,Socket s) {
 	    this.mContext = context;
+	    this.s = s;
 	  }
 	 
 	 void sendPictureThread(final byte[] data)
