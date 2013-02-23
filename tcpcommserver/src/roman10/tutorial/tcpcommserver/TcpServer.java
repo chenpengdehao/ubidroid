@@ -38,7 +38,8 @@ public class TcpServer extends Activity {
     
     // camera related stuff
     private int cameraId = 0;
-    private Camera mCamera;
+    private Camera mCamera = null;
+    private Preview mPreview = null;
     
     /** Called when the activity is first created. */
     @Override
@@ -53,6 +54,7 @@ public class TcpServer extends Activity {
     @Override
 	public void finish() {
 		// TODO Auto-generated method stub
+    	mCamera.stopPreview();
 		mCamera.release();
 		mCamera = null;
 		super.finish();
@@ -69,6 +71,7 @@ public class TcpServer extends Activity {
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		if (mCamera != null) {
+			mCamera.stopPreview();
 			mCamera.release();
 			mCamera = null;
 		    }
@@ -81,6 +84,7 @@ public class TcpServer extends Activity {
 		if(mCamera == null)
 			mCamera = Camera.open(cameraId);
 		// Have to start preview here
+		mCamera.startPreview();
 		super.onResume();
 	}
 
@@ -89,6 +93,7 @@ public class TcpServer extends Activity {
 		// TODO Auto-generated method stub
 		if(mCamera != null)
 		{
+			mCamera.stopPreview();
 		mCamera.release();
 		mCamera = null;
 		}
@@ -110,21 +115,21 @@ public class TcpServer extends Activity {
   	    for (int i = 0; i < numberOfCameras; i++) {
   	      CameraInfo info = new CameraInfo();
   	      Camera.getCameraInfo(i, info);
-  	      if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
+  	      if (info.facing == CameraInfo.CAMERA_FACING_FRONT || info.facing == CameraInfo.CAMERA_FACING_BACK) {
   	        Log.d(DEBUG_TAG, "Camera found");
   	        cameraId = i;
   	        break;
   	      }
   	    }
-  	    return cameraId;
+  	    return 0;
   	  }
     
     private void startCamera()
     {
-    	 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+    	 /*if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
 			      Toast.makeText(this, "No camera on this device", Toast.LENGTH_LONG)
 			          .show();
-			    } else {
+			    } else {*/
 			      cameraId = findFrontFacingCamera();
 			      if (cameraId < 0) {
 			        Toast.makeText(this, "No front facing camera found.",
@@ -132,7 +137,7 @@ public class TcpServer extends Activity {
 			      } else {
 			    	  mCamera = Camera.open(cameraId);
 			      }
-			    }
+    		//}
     }
     
     public void showMsgonui(final String str)
@@ -157,12 +162,14 @@ public class TcpServer extends Activity {
 					public void run() 
 					{
 					    startCamera();
-						mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),s));
+					    
+					    mPreview = new Preview(getApplicationContext(),mCamera);
+					    //mCamera.startPreview();
+					    if(mCamera != null)
+					    {
+					    	mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),s,mCamera));
+					    }
 						
-						if (mCamera != null) {
-							mCamera.release();
-							mCamera = null;
-						}
 					}
 				}
 				);
