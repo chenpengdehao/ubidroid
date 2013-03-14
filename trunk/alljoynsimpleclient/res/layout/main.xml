@@ -24,4 +24,9 @@
 			android:hint="@string/enter_message_hint" 
 			/>
 	</LinearLayout>
+	<ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/transparent" />
 </LinearLayout>
