@@ -43,6 +43,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
 
 public class Client extends Activity {
     /* Load the native alljoyn_java library. */
@@ -55,6 +58,8 @@ public class Client extends Activity {
     private static final int MESSAGE_POST_TOAST = 3;
     private static final int MESSAGE_START_PROGRESS_DIALOG = 4;
     private static final int MESSAGE_STOP_PROGRESS_DIALOG = 5;
+    private static final int MESSAGE_GETPICTURE = 6;
+    private static final int MESSAGE_GETPICTURE_REPLY = 7;
 
     private static final String TAG = "SimpleClient";
 
@@ -62,6 +67,7 @@ public class Client extends Activity {
     private ArrayAdapter<String> mListViewArrayAdapter;
     private ListView mListView;
     private Menu menu;
+    private ImageView iv; 
     
     /* Handler used to make calls to AllJoyn methods. See onCreate(). */
     private BusHandler mBusHandler;
@@ -94,6 +100,16 @@ public class Client extends Activity {
                 case MESSAGE_STOP_PROGRESS_DIALOG:
                     mDialog.dismiss();
                     break;
+                case MESSAGE_GETPICTURE:
+            		String getPicture= (String) msg.obj;
+                    mListViewArrayAdapter.add("Picture request sent:  " + getPicture);
+                    break;
+                case MESSAGE_GETPICTURE_REPLY:
+            	   	String retPicture = (String) msg.obj;
+                    mListViewArrayAdapter.add("Picture response:  " + retPicture);
+                    mEditText.setText("");
+                    break;
+
                 default:
                     break;
                 }
@@ -108,7 +124,7 @@ public class Client extends Activity {
         mListViewArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
         mListView = (ListView) findViewById(R.id.ListView);
         mListView.setAdapter(mListViewArrayAdapter);
-
+        iv = (ImageView)findViewById(R.id.imageView1); //main.xml has been modified
         mEditText = (EditText) findViewById(R.id.EditText);
         mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -187,6 +203,7 @@ public class Client extends Activity {
         public static final int JOIN_SESSION = 2;
         public static final int DISCONNECT = 3;
         public static final int PING = 4;
+        public static final int GETPICTURE = 5;
 
         public BusHandler(Looper looper) {
             super(looper);
@@ -339,6 +356,28 @@ public class Client extends Activity {
                 		sendUiMessage(MESSAGE_PING, msg.obj);
                 		String reply = mSimpleInterface.Ping((String) msg.obj);
                 		sendUiMessage(MESSAGE_PING_REPLY, reply);
+                	}
+                } catch (BusException ex) {
+                    logException("SimpleInterface.Ping()", ex);
+                }
+                break;
+            }
+            case GETPICTURE: {
+                try {
+                	if (mSimpleInterface != null) {
+                		sendUiMessage(MESSAGE_GETPICTURE, msg.obj); //request sent
+                		byte[] arr= mSimpleInterface.GetPicture((String) msg.obj); //response from service
+						Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
+						Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
+
+			            iv.setImageBitmap(resizedBitmap);
+						iv.requestFocus();
+						Log.i("TcpClient", "Shown image ");
+						Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();
+
+                        String reply = "received picture";
+                		sendUiMessage(MESSAGE_GETPICTURE_REPLY, reply); //response receive
+		
                 	}
                 } catch (BusException ex) {
                     logException("SimpleInterface.Ping()", ex);
