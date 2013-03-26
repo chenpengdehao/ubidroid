@@ -16,6 +16,8 @@
 
 package org.alljoyn.bus.samples.simpleservice;
 
+import java.util.concurrent.Semaphore;
+
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusListener;
 import org.alljoyn.bus.BusObject;
@@ -26,6 +28,7 @@ import org.alljoyn.bus.Status;
 //import org.alljoyn.bus.p2p.WifiDirectAutoAccept;
 
 import android.app.Activity;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -36,6 +39,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -54,6 +58,11 @@ public class Service extends Activity {
     private ArrayAdapter<String> mListViewArrayAdapter;
     private ListView mListView;
     private Menu menu;
+    
+    Camera mCamera;
+    ImageView image; 
+    private final Semaphore isImageCaptured = new Semaphore(1);
+    final byte[] res = null;
     
     //private WifiDirectAutoAccept mWfdAutoAccept;
 
@@ -188,6 +197,53 @@ public class Service extends Activity {
         /* Helper function to send a message to the UI thread. */
         private void sendUiMessage(int what, Object obj) {
             mHandler.sendMessage(mHandler.obtainMessage(what, obj));
+        }
+        
+        /*
+         * This is the code run when the client makes a call to the Gt Picture method of the
+         * SimpleInterface.  This implementation just returns the received String to the caller.
+         *
+         * This code also prints the string it received from the user and the string it is
+         * returning to the user to the screen.
+         */
+        
+        public byte[] GetPicture(String inStr)
+        {
+        	        	
+        	try
+        	{
+        		isImageCaptured.acquire();
+        	}
+        	catch(InterruptedException e)
+        	{
+        		Log.e(TAG, "acquire - exception -- 1");
+        	}
+        	mHandler.post(new Runnable()
+			{	
+				public void run() 
+				{
+
+				    //mCamera.startPreview();
+				    if(mCamera != null)
+				    {
+				    	mCamera.takePicture(null, null, new PictureHandler(getApplicationContext(),mCamera, image, res, isImageCaptured));
+				    }
+					
+				}
+			});
+        	
+        	try
+        	{
+        		isImageCaptured.acquire();
+        	}
+        	catch(InterruptedException e)
+        	{
+        		Log.e(TAG, "acquire - exception -- 2");
+        	}
+        	
+        	isImageCaptured.release();
+        	
+        	return res;
         }
     }
 
