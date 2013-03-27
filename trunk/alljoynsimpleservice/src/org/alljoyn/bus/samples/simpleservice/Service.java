@@ -147,6 +147,8 @@ public class Service extends Activity {
         busThread.start();
         mBusHandler = new BusHandler(busThread.getLooper());
         
+        /* image view */
+        image = (ImageView)findViewById(R.id.imageView1);
         /* Start Camera */
         startCamera();
         
