@@ -28,6 +28,7 @@ import org.alljoyn.bus.Status;
 //import org.alljoyn.bus.p2p.WifiDirectAutoAccept;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,6 +61,7 @@ public class Service extends Activity {
     private Menu menu;
     
     Camera mCamera;
+    private int cameraId = 0;
     ImageView image; 
     private final Semaphore isImageCaptured = new Semaphore(1);
     final byte[] res = null;
@@ -92,7 +94,40 @@ public class Service extends Activity {
 
     /* Handler used to make calls to AllJoyn methods. See onCreate(). */
     private Handler mBusHandler;
-
+    
+    /* Camera related code */
+    private int findFrontFacingCamera() {
+    	  int cameraId = -1;
+    	    // Search for the front facing camera
+    	    /*int numberOfCameras = Camera.getNumberOfCameras();
+    	    for (int i = 0; i < numberOfCameras; i++) {
+    	      CameraInfo info = new CameraInfo();
+    	      Camera.getCameraInfo(i, info);
+    	      if (info.facing == CameraInfo.CAMERA_FACING_FRONT || info.facing == CameraInfo.CAMERA_FACING_BACK) {
+    	        Log.d(DEBUG_TAG, "Camera found");
+    	        cameraId = i;
+    	        break;
+    	      }
+    	    }*/
+    	    return 0;
+    	  }
+    
+    private void startCamera()
+    {
+    	 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+			      Toast.makeText(this, "No camera on this device", Toast.LENGTH_LONG)
+			          .show();
+			    } else {
+			      cameraId = findFrontFacingCamera();
+			      if (cameraId < 0) {
+			        Toast.makeText(this, "No front facing camera found.",
+			            Toast.LENGTH_LONG).show();
+			      } else {
+			    	  mCamera = Camera.open(cameraId);
+			      }
+    		}
+    }
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +146,10 @@ public class Service extends Activity {
         HandlerThread busThread = new HandlerThread("BusHandler");
         busThread.start();
         mBusHandler = new BusHandler(busThread.getLooper());
-
+        
+        /* Start Camera */
+        startCamera();
+        
         /* Start our service. */
         mSimpleService = new SimpleService();
         mBusHandler.sendEmptyMessage(BusHandler.CONNECT);
@@ -119,7 +157,11 @@ public class Service extends Activity {
 
     @Override
     public void onResume() {
-        super.onResume();
+    	super.onResume();
+    	if(mCamera == null)
+			mCamera = Camera.open(cameraId);
+		// Have to start preview here
+		mCamera.startPreview();
 
         /* The auto-accept handler is automatically deregistered
          * when the application goes in to the background, so
@@ -157,7 +199,12 @@ public class Service extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-
+    	if(mCamera != null)
+		{
+			mCamera.stopPreview();
+		mCamera.release();
+		mCamera = null;
+		}
         /* While the auto-accept handler can automatically de-register
          * when the app goes in to the background or stops, it's a
          * good idea to explicitly de-register here so the handler is
@@ -168,14 +215,38 @@ public class Service extends Activity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        
+		super.onDestroy();
+    	if(mCamera != null)
+    	{
+    		mCamera.stopPreview();
+    		mCamera.release();
+    		mCamera = null;
+    	}
+               
         //mWfdAutoAccept.intercept(false);
 
         /* Disconnect to prevent any resource leaks. */
         mBusHandler.sendEmptyMessage(BusHandler.DISCONNECT);        
     }
     
+    @Override
+	protected void onPause() {
+    	super.onPause();
+		// TODO Auto-generated method stub
+		if (mCamera != null) {
+			mCamera.stopPreview();
+			mCamera.release();
+			mCamera = null;
+		    }
+		
+    }
+    
+    @Override
+	protected void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+
+	}
     /* The class that is our AllJoyn service.  It implements the SimpleInterface. */
     class SimpleService implements SimpleInterface, BusObject {
 
