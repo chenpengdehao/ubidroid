@@ -37,8 +37,10 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -68,6 +70,7 @@ public class Client extends Activity {
     private ListView mListView;
     private Menu menu;
     private ImageView iv; 
+    private Button mButton;
     
     /* Handler used to make calls to AllJoyn methods. See onCreate(). */
     private BusHandler mBusHandler;
@@ -124,7 +127,24 @@ public class Client extends Activity {
         mListViewArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
         mListView = (ListView) findViewById(R.id.ListView);
         mListView.setAdapter(mListViewArrayAdapter);
+        
+        mButton = (Button)findViewById(R.id.button1);
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            	
+            	/* Call the remote object's Ping method. */
+                //Message msg = mBusHandler.obtainMessage(BusHandler.PING, 
+                //                                           view.getText().toString());
+            	String str = "click";
+            	Message msg = mBusHandler.obtainMessage(BusHandler.GETPICTURE,str);
+                mBusHandler.sendMessage(msg);
+
+            }
+        });
+        
         iv = (ImageView)findViewById(R.id.imageView1); //main.xml has been modified
+        
         mEditText = (EditText) findViewById(R.id.EditText);
         mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -138,7 +158,7 @@ public class Client extends Activity {
                     return true;
                 }
             });
-
+        
         /* Make all AllJoyn calls through a separate handler thread to prevent blocking the UI. */
         HandlerThread busThread = new HandlerThread("BusHandler");
         busThread.start();
@@ -366,6 +386,7 @@ public class Client extends Activity {
                 try {
                 	if (mSimpleInterface != null) {
                 		sendUiMessage(MESSAGE_GETPICTURE, msg.obj); //request sent
+                		
                 		byte[] arr= mSimpleInterface.GetPicture((String) msg.obj); //response from service
 						Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
 						Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
