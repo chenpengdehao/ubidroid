@@ -64,7 +64,7 @@ public class Service extends Activity {
     private int cameraId = 0;
     ImageView image; 
     private final Semaphore isImageCaptured = new Semaphore(1);
-    String res = null;
+    public PictureHandler pich;
         
     //private WifiDirectAutoAccept mWfdAutoAccept;
 
@@ -155,6 +155,9 @@ public class Service extends Activity {
         /* Start our service. */
         mSimpleService = new SimpleService();
         mBusHandler.sendEmptyMessage(BusHandler.CONNECT);
+        
+        /* create a picture handler object */
+        pich = new PictureHandler(getApplicationContext(),mCamera, image, isImageCaptured);
     }
 
     @Override
@@ -283,7 +286,7 @@ public class Service extends Activity {
         public String GetPicture(String inStr)
         {
         	
-        	PictureHandler pich = new PictureHandler(getApplicationContext(),mCamera, image, res, isImageCaptured);
+        	
         	try
         	{
         		isImageCaptured.acquire();
@@ -292,20 +295,10 @@ public class Service extends Activity {
         	{
         		Log.e(TAG, "acquire - exception -- 1");
         	}
-        	//mHandler.post(new Runnable()
-			//{	
-				//public void run() 
-				//{
-						
-				    //mCamera.startPreview();
-				    if(mCamera != null)
-				    {
-				    	mCamera.takePicture(null, null, pich);
-				    }
-					
-				//}
-			//});
-        	
+			    if(mCamera != null)
+			    {
+			    	mCamera.takePicture(null, null, pich);
+			    }      	
         	try
         	{
         		isImageCaptured.acquire();
@@ -317,7 +310,7 @@ public class Service extends Activity {
         	
         	isImageCaptured.release();
         	
-        	return res;
+        	return pich.res;
         }
     }
 
