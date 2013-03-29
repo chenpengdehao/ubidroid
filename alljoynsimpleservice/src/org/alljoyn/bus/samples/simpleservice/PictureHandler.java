@@ -27,9 +27,9 @@ public class PictureHandler implements PictureCallback {
 	private final Camera c;
 	ImageView img;
 	Semaphore sem;
-	byte[] res;
+	String res;
 	  
-	public PictureHandler(Context context,Camera c, ImageView i, byte[] res, Semaphore sem) {
+	public PictureHandler(Context context,Camera c, ImageView i, String res, Semaphore sem) {
 	    this.mContext = context;
 	    this.c = c;
 	    this.img = i;
@@ -60,17 +60,25 @@ public class PictureHandler implements PictureCallback {
 	  public void onPictureTaken(byte[] data, Camera camera) {
 
 		  Log.d(DEBUG_TAG, "onPictureTaken - called");   
-		  if(c != null){
-			  Bitmap bmp=BitmapFactory.decodeByteArray(data,0,data.length);
-				Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
-				img.setImageBitmap(resizedBitmap);
-				img.requestFocus();
-				Log.i("SimpleService", "Shown image ");
-				Toast.makeText(mContext, "Shown Image", Toast.LENGTH_LONG).show();
-		  c.startPreview();
-		  sem.release();
+		  if(c != null)
+		  {
+			  	
+			Bitmap bmp=BitmapFactory.decodeByteArray(data,0,data.length);
+			Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
+			img.setImageBitmap(resizedBitmap);
+			img.requestFocus();
+			Log.i("SimpleService", "Shown image ");
+			Toast.makeText(mContext, "Shown Image", Toast.LENGTH_LONG).show();
+				
+			c.startPreview();
 		  //sendPictureThread(data);
+			//System.arraycopy(data,0,res,0,data.length);
+			// Convert byte array to string
+			
+			res = data.toString();
+			
 		  }
+		  sem.release();
 		  
 		/*File pictureFileDir = getDir();
 	    if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
