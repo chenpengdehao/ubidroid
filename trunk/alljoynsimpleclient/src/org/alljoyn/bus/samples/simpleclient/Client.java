@@ -387,21 +387,30 @@ public class Client extends Activity {
                 	if (mSimpleInterface != null) {
                 		sendUiMessage(MESSAGE_GETPICTURE, msg.obj); //request sent
                 		
-                		byte[] arr= mSimpleInterface.GetPicture((String) msg.obj); //response from service
-						Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
-						Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
-
-			            iv.setImageBitmap(resizedBitmap);
-						iv.requestFocus();
-						Log.i("TcpClient", "Shown image ");
-						Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();
-
-                        String reply = "received picture";
+                		final String arrs = mSimpleInterface.GetPicture((String) msg.obj); //response from service						
+						mHandler.post(new Runnable()
+						{	
+							public void run() 
+							{
+								               		
+		                		final byte[] arr = arrs.getBytes();
+		                		Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
+								final Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
+								
+								iv.setImageBitmap(resizedBitmap);
+								iv.requestFocus();
+								Log.i("TcpClient", "Shown image ");
+								Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();                    	   
+								
+							}
+						});
+						
+						String reply = "received picture";
                 		sendUiMessage(MESSAGE_GETPICTURE_REPLY, reply); //response receive
 		
                 	}
                 } catch (BusException ex) {
-                    logException("SimpleInterface.Ping()", ex);
+                    logException("SimpleInterface.GetPicture()", ex);
                 }
                 break;
             }
