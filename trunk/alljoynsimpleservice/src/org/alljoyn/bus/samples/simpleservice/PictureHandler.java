@@ -29,12 +29,11 @@ public class PictureHandler implements PictureCallback {
 	Semaphore sem;
 	String res;
 	  
-	public PictureHandler(Context context,Camera c, ImageView i, String res, Semaphore sem) {
+	public PictureHandler(Context context,Camera c, ImageView i, Semaphore sem) {
 	    this.mContext = context;
 	    this.c = c;
 	    this.img = i;
-	    this.sem = sem;
-	    this.res = res;
+	    this.sem = sem;	    
 	  }
 	 
 	 /*void sendPictureThread(final byte[] data)
