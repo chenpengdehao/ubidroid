@@ -42,5 +42,5 @@ public interface SimpleInterface {
     String Ping(String inStr) throws BusException;
     
     @BusMethod
-    byte[] GetPicture(String inStr) throws BusException;
+    String GetPicture(String inStr) throws BusException;
 }
