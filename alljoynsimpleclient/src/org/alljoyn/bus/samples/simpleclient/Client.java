@@ -69,7 +69,7 @@ public class Client extends Activity implements SensorEventListener {
     private static final int MESSAGE_GETPICTURE = 6;
     private static final int MESSAGE_GETPICTURE_REPLY = 7;
     private static final int MESSAGE_GETSENSORDATA = 8;
-    private static final int MESSAGE_GETSENSORDATA_REPLY = 9; 
+    private static final int MESSAGE_GETSENSORDATA_REPLY = 9;
 
     private static final String TAG = "SimpleClient";
 
@@ -79,12 +79,11 @@ public class Client extends Activity implements SensorEventListener {
     private Menu menu;
     private ImageView iv; 
     private Button mButton;
-
+    
     //Sensor related variables
-	private long lastUpdate;
-	private SensorManager sensorManager;
-	private boolean color = false;
-	
+    private long lastUpdate;
+    private SensorManager sensorManager;
+    private boolean color = false;
     /* Handler used to make calls to AllJoyn methods. See onCreate(). */
     private BusHandler mBusHandler;
     
@@ -130,9 +129,8 @@ public class Client extends Activity implements SensorEventListener {
                 	mListViewArrayAdapter.add("Send: " + getSensorData);
                 	break;
                 case MESSAGE_GETSENSORDATA_REPLY:
-                	mEditText.setText("");
-                	break;
-
+                   	mEditText.setText("");
+                   	break;
                 default:
                     break;
                 }
@@ -187,63 +185,54 @@ public class Client extends Activity implements SensorEventListener {
         /* Connect to an AllJoyn object. */
         mBusHandler.sendEmptyMessage(BusHandler.CONNECT);
         mHandler.sendEmptyMessage(MESSAGE_START_PROGRESS_DIALOG);
-        
-		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		lastUpdate = System.currentTimeMillis();
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        lastUpdate = System.currentTimeMillis();
     }
-
-	@Override
-	public void onAccuracyChanged(Sensor arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		//if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-		{
-			getAccelerometer(event);
-		}
-	}
-	
-	@Override
-	protected void onResume()
-	{
-		super.onResume();
-		
-		sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), 
-				SensorManager.SENSOR_DELAY_NORMAL);
-	}
-	
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
-		sensorManager.unregisterListener(this);
-	}
-	
-	private void getAccelerometer(SensorEvent event)
-	{
-		float[] values = event.values;
-		
-		float x = values[0];
-		float y = values[1];
-		float z = values[2];
-		
-		float accelerationSquareRoot = (x*x + y*y + z*z) / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-		
-		long actualTime = System.currentTimeMillis();
-		
+    
+    @Override
+    public void onAccuracyChanged(Sensor arg0, int arg1) {
+    	// TODO Auto-generated method stub
+    }
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+    //if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+    	getAccelerometer(event);
+    }
+    @Override
+    protected void onResume(){
+    	super.onResume();
+	    sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+	    SensorManager.SENSOR_DELAY_NORMAL);
+    }
+    
+    @Override
+    protected void onPause()
+    {
+	    super.onPause();
+	    sensorManager.unregisterListener(this);
+    }
+    
+    private void getAccelerometer(SensorEvent event){
+    	float[] values = event.values;
+    
+    	float x = values[0];
+    	float y = values[1];
+    	float z = values[2];
+    	
+    	float accelerationSquareRoot = (x*x + y*y + z*z) / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+    	
+  		long actualTime = System.currentTimeMillis();
+    	
 		if(accelerationSquareRoot >= 2)
 		{
 			if(actualTime - lastUpdate < 200)
 			{
 				return;
 			}
-			
+
 			lastUpdate = actualTime;
 			Toast.makeText(this, "Device was Shuffeled", Toast.LENGTH_SHORT).show();
-			
+
 			if(color)
 			{
 				//view.setBackgroundColor(Color.GREEN);
@@ -258,9 +247,8 @@ public class Client extends Activity implements SensorEventListener {
         	Message msg = mBusHandler.obtainMessage(BusHandler.GETSENSORDATA,str);
             mBusHandler.sendMessage(msg);
 		}
-	}
-	
-   
+   	}
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -480,39 +468,48 @@ public class Client extends Activity implements SensorEventListener {
                 	if (mSimpleInterface != null) {
                 		sendUiMessage(MESSAGE_GETPICTURE, msg.obj); //request sent
                 		
-                		byte[] arr= mSimpleInterface.GetPicture((String) msg.obj); //response from service
-						Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
-						Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
-
-			            iv.setImageBitmap(resizedBitmap);
-						iv.requestFocus();
-						Log.i("TcpClient", "Shown image ");
-						Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();
-
-                        String reply = "received picture";
+                		final String arrs = mSimpleInterface.GetPicture((String) msg.obj); //response from service						
+						mHandler.post(new Runnable()
+						{	
+							public void run() 
+							{
+								               		
+		                		final byte[] arr = arrs.getBytes();
+		                		Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
+								final Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
+								
+								iv.setImageBitmap(resizedBitmap);
+								iv.requestFocus();
+								Log.i("TcpClient", "Shown image ");
+								Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();                    	   
+								
+							}
+						});
+						
+						String reply = "received picture";
                 		sendUiMessage(MESSAGE_GETPICTURE_REPLY, reply); //response receive
 		
                 	}
                 } catch (BusException ex) {
-                    logException("SimpleInterface.Ping()", ex);
+                    logException("SimpleInterface.GetPicture()", ex);
                 }
                 break;
             }
             case GETSENSORDATA: {
-            	try 
-            	{
-            		if(mSimpleInterface != null) 
-            		{
-            			sendUiMessage(MESSAGE_GETSENSORDATA, msg.obj);
+                try 
+                {
+                        if(mSimpleInterface != null) 
+                        {
+                                sendUiMessage(MESSAGE_GETSENSORDATA, msg.obj);
 
-                		String reply = mSimpleInterface.Ping((String) msg.obj);
-            			//sendUiMessage(MESSAGE_GETSENSORDATA_REPLY, reply);
-            		}
-            	} 
-            	catch (BusException ex) 
-            	{
-            		logException("SimpleInterface.SendSensorData()", ex);
-            	}
+                                String reply = mSimpleInterface.Ping((String) msg.obj);
+                                //sendUiMessage(MESSAGE_GETSENSORDATA_REPLY, reply);
+                        }
+                } 
+                catch (BusException ex) 
+                {
+                        logException("SimpleInterface.SendSensorData()", ex);
+                }
             }
             default:
                 break;
