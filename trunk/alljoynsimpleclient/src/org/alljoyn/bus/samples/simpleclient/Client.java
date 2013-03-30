@@ -80,6 +80,7 @@ public class Client extends Activity implements SensorEventListener {
     private Menu menu;
     private ImageView iv; 
     private Button mButton;
+    private Button mButtonFeature;
     private TextView tv1;
     
     //Sensor related variables
@@ -171,6 +172,17 @@ public class Client extends Activity implements SensorEventListener {
 
             }
         });
+        
+        mButtonFeature=(Button)findViewById(R.id.button2);
+        mButtonFeature.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String str = "get features";
+				Message msg = mBusHandler.obtainMessage(BusHandler.GETFEATURE, str);
+				mBusHandler.sendMessage(msg);
+			}
+		});
         
         iv = (ImageView)findViewById(R.id.imageView1); //main.xml has been modified
         tv1 = (TextView) findViewById(R.id.TV1); //main.xml has been modified
