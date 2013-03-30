@@ -28,6 +28,8 @@ import org.alljoyn.bus.Status;
 //import org.alljoyn.bus.p2p.WifiDirectAutoAccept;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -311,6 +313,23 @@ public class Service extends Activity {
         	isImageCaptured.release();
         	
         	return pich.res;
+        }
+        public String[]  GetFeature(String inStr){
+        	PackageManager pm = getApplicationContext().getPackageManager();
+		    FeatureInfo[] featureInfoList = pm.getSystemAvailableFeatures();
+		    String[] featureStringList = null;
+		    if(featureInfoList == null)
+		    {
+			  Log.e("ERROR","No feature is available");
+		    }
+		    else
+		    {
+		    	for(int i = 0; i<featureInfoList.length; i++){
+		    		featureStringList[i]=featureInfoList[i].toString();
+		    	}
+	        	
+	        }
+		    return featureStringList;
         }
     }
 
