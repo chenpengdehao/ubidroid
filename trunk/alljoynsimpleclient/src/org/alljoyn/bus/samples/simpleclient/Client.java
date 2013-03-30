@@ -70,7 +70,8 @@ public class Client extends Activity implements SensorEventListener {
     private static final int MESSAGE_GETPICTURE_REPLY = 7;
     private static final int MESSAGE_GETSENSORDATA = 8;
     private static final int MESSAGE_GETSENSORDATA_REPLY = 9;
-
+    private static final int MESSAGE_GETFEATURE = 10;
+    private static final int MESSAGE_GETFEATURE_REPLY = 11;
     private static final String TAG = "SimpleClient";
 
     private EditText mEditText;
@@ -79,6 +80,7 @@ public class Client extends Activity implements SensorEventListener {
     private Menu menu;
     private ImageView iv; 
     private Button mButton;
+    private TextView tv1;
     
     //Sensor related variables
     private long lastUpdate;
@@ -131,6 +133,15 @@ public class Client extends Activity implements SensorEventListener {
                 case MESSAGE_GETSENSORDATA_REPLY:
                    	mEditText.setText("");
                    	break;
+                case MESSAGE_GETFEATURE:
+            	    String getFeature= (String) msg.obj;
+                    mListViewArrayAdapter.add("Feature request sent:  " + getFeature);
+                    break;
+               case MESSAGE_GETFEATURE_REPLY:
+	        	    String retFeature = (String) msg.obj;
+	                mListViewArrayAdapter.add("Feature response:  " + retFeature);
+	                mEditText.setText("");
+	                break;
                 default:
                     break;
                 }
@@ -162,7 +173,7 @@ public class Client extends Activity implements SensorEventListener {
         });
         
         iv = (ImageView)findViewById(R.id.imageView1); //main.xml has been modified
-        
+        tv1 = (TextView) findViewById(R.id.TV1); //main.xml has been modified
         mEditText = (EditText) findViewById(R.id.EditText);
         mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -305,6 +316,7 @@ public class Client extends Activity implements SensorEventListener {
         public static final int PING = 4;
         public static final int GETPICTURE = 5;
         public static final int GETSENSORDATA = 6;
+        public static final int GETFEATURE = 7;
 
         public BusHandler(Looper looper) {
             super(looper);
@@ -509,6 +521,37 @@ public class Client extends Activity implements SensorEventListener {
                 catch (BusException ex) 
                 {
                         logException("SimpleInterface.SendSensorData()", ex);
+                }
+            }
+            case GETFEATURE:{
+            	try {
+                	if (mSimpleInterface != null) {
+                		sendUiMessage(MESSAGE_GETFEATURE, msg.obj); //request sent
+                		
+                		String[] featureInfoList = mSimpleInterface.GetFeature((String) msg.obj); //response from service
+						
+						if(featureInfoList == null){
+							  Log.e("ERROR","No feature is available");
+						}
+						else
+						    {
+							  //send feature list to List view and Log  
+							  for (int i=0; i<featureInfoList.length; i++)
+							  {
+								 String feature = featureInfoList[i];
+								 Log.d("DEBUG", "Feature available: "+ feature); //Consider changing this to actual feature name
+								 tv1.append("\n" + feature);
+								 //mListViewArrayAdapter.add(featureName);
+							  }
+						}		
+											
+								
+						String reply = "received Feature";
+	                	sendUiMessage(MESSAGE_GETFEATURE_REPLY, reply); //response receive
+			
+	                }
+                } catch (BusException ex) {
+                    logException("SimpleInterface.Ping()", ex);
                 }
             }
             default:
