@@ -540,21 +540,22 @@ public class Client extends Activity implements SensorEventListener {
                 	if (mSimpleInterface != null) {
                 		sendUiMessage(MESSAGE_GETFEATURE, msg.obj); //request sent
                 		
-                		String[] featureInfoList = mSimpleInterface.GetFeature((String) msg.obj); //response from service
+                		String featureInfoList = mSimpleInterface.GetFeature((String) msg.obj); //response from service
 						
 						if(featureInfoList == null){
 							  Log.e("ERROR","No feature is available");
 						}
 						else
 						    {
-							  //send feature list to List view and Log  
-							  for (int i=0; i<featureInfoList.length; i++)
+							  //FIX ME - send feature list as a string with some '#' as delimiter
+							  // To be done
+							  /*for (int i=0; i<featureInfoList.length; i++)
 							  {
 								 String feature = featureInfoList[i];
 								 Log.d("DEBUG", "Feature available: "+ feature); //Consider changing this to actual feature name
 								 tv1.append("\n" + feature);
 								 //mListViewArrayAdapter.add(featureName);
-							  }
+							  }*/
 						}		
 											
 								
