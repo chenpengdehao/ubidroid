@@ -17,27 +17,28 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		>
-		<EditText android:id="@+id/EditText"
-			android:layout_height="wrap_content" 
-			android:layout_width="wrap_content"
-			android:layout_weight="1.0"
-			android:layout_gravity="bottom" 
-			android:hint="@string/enter_message_hint" 
-			/>
-		<Button
-	    android:id="@+id/button1"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_weight="1.0"
-	    android:text="Click" 
-	    	/>
-	</LinearLayout>
 
-	<Button
-	    android:id="@+id/button2"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:text="Get Features" />
+		<EditText
+		    android:id="@+id/EditText"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="bottom"
+		    android:hint="@string/enter_message_hint" />
+
+		<Button
+		    android:id="@+id/button1"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="0.14"
+		    android:text="Click" />
+
+		<Button
+		    android:id="@+id/GetSensors"
+		    android:layout_width="89dp"
+		    android:layout_height="wrap_content"
+		    android:text="Get List" />
+
+	</LinearLayout>
 
 	<TextView
 	    android:id="@+id/TV1"
