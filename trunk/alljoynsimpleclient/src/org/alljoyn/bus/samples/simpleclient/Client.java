@@ -19,11 +19,14 @@ package org.alljoyn.bus.samples.simpleclient;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusListener;
+import org.alljoyn.bus.ErrorReplyBusException;
+import org.alljoyn.bus.MarshalBusException;
 import org.alljoyn.bus.Mutable;
 import org.alljoyn.bus.ProxyBusObject;
 import org.alljoyn.bus.SessionListener;
 import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
+import org.alljoyn.bus.samples.simpleclient.R;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -80,8 +83,10 @@ public class Client extends Activity implements SensorEventListener {
     private Menu menu;
     private ImageView iv; 
     private Button mButton;
-    private Button mButtonFeature;
     private TextView tv1;
+    private Button buttonSensorList;
+    
+	private String feature = "";
     
     //Sensor related variables
     private long lastUpdate;
@@ -141,6 +146,7 @@ public class Client extends Activity implements SensorEventListener {
                case MESSAGE_GETFEATURE_REPLY:
 	        	    String retFeature = (String) msg.obj;
 	                mListViewArrayAdapter.add("Feature response:  " + retFeature);
+	                tv1.setText(feature);
 	                mEditText.setText("");
 	                break;
                 default:
@@ -159,7 +165,8 @@ public class Client extends Activity implements SensorEventListener {
         mListView.setAdapter(mListViewArrayAdapter);
         
         mButton = (Button)findViewById(R.id.button1);
-        mButton.setOnClickListener(new View.OnClickListener() {
+        buttonSensorList = (Button) findViewById(R.id.GetSensors); //main.xml has been modified
+        buttonSensorList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
             	
@@ -167,26 +174,18 @@ public class Client extends Activity implements SensorEventListener {
                 //Message msg = mBusHandler.obtainMessage(BusHandler.PING, 
                 //                                           view.getText().toString());
             	String str = "click";
-            	Message msg = mBusHandler.obtainMessage(BusHandler.GETPICTURE,str);
+            	//Message msg = mBusHandler.obtainMessage(BusHandler.GETPICTURE,str);
+            	Message msg = mBusHandler.obtainMessage(BusHandler.GETFEATURE,str);
                 mBusHandler.sendMessage(msg);
 
             }
         });
         
-        mButtonFeature=(Button)findViewById(R.id.button2);
-        mButtonFeature.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				String str = "get features";
-				Message msg = mBusHandler.obtainMessage(BusHandler.GETFEATURE, str);
-				mBusHandler.sendMessage(msg);
-			}
-		});
-        
         iv = (ImageView)findViewById(R.id.imageView1); //main.xml has been modified
         tv1 = (TextView) findViewById(R.id.TV1); //main.xml has been modified
-        mEditText = (EditText) findViewById(R.id.EditText);
+
+        
+		mEditText = (EditText) findViewById(R.id.EditText);
         mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_NULL
@@ -490,8 +489,20 @@ public class Client extends Activity implements SensorEventListener {
             case GETPICTURE: {
                 try {
                 	if (mSimpleInterface != null) {
-                		sendUiMessage(MESSAGE_GETPICTURE, msg.obj); //request sent
-                		
+                		sendUiMessage(MESSAGE_GETPICTURE, msg.obj); //request sent <<<<<<< .mine
+                		//byte[] arr= mSimpleInterface.GetPicture((String) msg.obj); //response from service
+                		String pictureResponse = mSimpleInterface.GetPicture((String) msg.obj); //response from service
+                		//byte[] arr = pictureResponse.getBytes();
+						//Bitmap bmp=BitmapFactory.decodeByteArray(arr,0,arr.length);
+						//Bitmap resizedBitmap = Bitmap.createScaledBitmap(bmp, 1024, 1024, false);
+
+			            //iv.setImageBitmap(resizedBitmap);
+						//iv.requestFocus();
+						//Log.i("TcpClient", "Shown image ");
+						//Toast.makeText(getApplicationContext(), "Shown Image", Toast.LENGTH_LONG).show();
+
+                        //String reply = "received picture";
+                		//sendUiMessage(MESSAGE_GETPICTURE_REPLY, reply); //response receive=======
                 		final String arrs = mSimpleInterface.GetPicture((String) msg.obj); //response from service						
 						mHandler.post(new Runnable()
 						{	
@@ -511,7 +522,7 @@ public class Client extends Activity implements SensorEventListener {
 						});
 						
 						String reply = "received picture";
-                		sendUiMessage(MESSAGE_GETPICTURE_REPLY, reply); //response receive
+                		sendUiMessage(MESSAGE_GETPICTURE_REPLY, reply); //response receive>>>>>>> .r69
 		
                 	}
                 } catch (BusException ex) {
@@ -535,36 +546,37 @@ public class Client extends Activity implements SensorEventListener {
                         logException("SimpleInterface.SendSensorData()", ex);
                 }
             }
+            break;
+            
             case GETFEATURE:{
             	try {
                 	if (mSimpleInterface != null) {
                 		sendUiMessage(MESSAGE_GETFEATURE, msg.obj); //request sent
                 		
-                		String featureInfoList = mSimpleInterface.GetFeature((String) msg.obj); //response from service
+                		String[] featureInfoList = mSimpleInterface.GetFeature(); //response from service
 						
 						if(featureInfoList == null){
 							  Log.e("ERROR","No feature is available");
 						}
 						else
-						    {
-							  //FIX ME - send feature list as a string with some '#' as delimiter
-							  // To be done
-							  /*for (int i=0; i<featureInfoList.length; i++)
-							  {
-								 String feature = featureInfoList[i];
-								 Log.d("DEBUG", "Feature available: "+ feature); //Consider changing this to actual feature name
-								 tv1.append("\n" + feature);
-								 //mListViewArrayAdapter.add(featureName);
-							  }*/
-						}		
-											
-								
+					    {
+							//send feature list to List view and Log
+							for (int i=0; i<featureInfoList.length; i++)
+							{
+								feature += "\n" + featureInfoList[i];
+								Log.d("DEBUG", "Feature available: "+ feature); //Consider changing this to actual feature name
+								//mListViewArrayAdapter.add(featureName);
+							}
+						}												
+												
 						String reply = "received Feature";
 	                	sendUiMessage(MESSAGE_GETFEATURE_REPLY, reply); //response receive
 			
 	                }
+                } catch (ErrorReplyBusException ex) {
+                    logException("SimpleInterface.GetFeature() errorreply", ex);
                 } catch (BusException ex) {
-                    logException("SimpleInterface.Ping()", ex);
+                    logException("SimpleInterface.GetFeature()", ex);
                 }
             }
             default:
@@ -576,6 +588,7 @@ public class Client extends Activity implements SensorEventListener {
         private void sendUiMessage(int what, Object obj) {
             mHandler.sendMessage(mHandler.obtainMessage(what, obj));
         }
+
     }
 
     private void logStatus(String msg, Status status) {
