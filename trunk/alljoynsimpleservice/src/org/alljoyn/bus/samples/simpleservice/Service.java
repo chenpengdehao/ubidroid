@@ -314,10 +314,16 @@ public class Service extends Activity {
         	
         	return pich.res;
         }
-        public String  GetFeature(String inStr){
+        public String[] GetFeature(){
         	PackageManager pm = getApplicationContext().getPackageManager();
 		    FeatureInfo[] featureInfoList = pm.getSystemAvailableFeatures();
-		    String featureStringList = null;
+		    String[] featureStringList = new String[featureInfoList.length];
+		    
+		    for(int i = 0; i < featureStringList.length; i++)
+		    {
+		    	featureStringList[i] = "NA";
+		    }
+		    /*
 		    if(featureInfoList == null)
 		    {
 			  Log.e("ERROR","No feature is available");
@@ -325,12 +331,18 @@ public class Service extends Activity {
 		    else
 		    {
 		    	//FIX ME -  Create a long string with features seperated by '#'
-		    	// i.e. we would use a long string with '#' as delimiter
-		    	/*for(int i = 0; i<featureInfoList.length; i++){
-		    		featureStringList[i]=featureInfoList[i].toString();
-		    	}*/
-	        	
+		    	// i.e. we would use a long string with '#' as delimiter        	
 	        }
+		    */
+			
+		    for(int i = 0; i<featureInfoList.length; i++)
+		    {
+		    	if(featureInfoList[i].name != null)
+		    	{
+		    		featureStringList[i]=featureInfoList[i].name;
+		    	}
+		    }
+		    
 		    return featureStringList;
         }
     }
