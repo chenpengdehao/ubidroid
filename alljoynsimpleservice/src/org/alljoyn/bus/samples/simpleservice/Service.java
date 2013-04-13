@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -41,7 +42,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -61,12 +64,16 @@ public class Service extends Activity {
     private ArrayAdapter<String> mListViewArrayAdapter;
     private ListView mListView;
     private Menu menu;
+    private Button changeVolume;
     
     Camera mCamera;
     private int cameraId = 0;
     ImageView image; 
     private final Semaphore isImageCaptured = new Semaphore(1);
     public PictureHandler pich;
+    private AudioManager amanager;
+    
+    float sensorValue = 0;
         
     //private WifiDirectAutoAccept mWfdAutoAccept;
 
@@ -98,42 +105,44 @@ public class Service extends Activity {
     private Handler mBusHandler;
     
     /* Camera related code */
-    private int findFrontFacingCamera() {
-    	  int cameraId = -1;
-    	    // Search for the front facing camera
-    	    /*int numberOfCameras = Camera.getNumberOfCameras();
-    	    for (int i = 0; i < numberOfCameras; i++) {
-    	      CameraInfo info = new CameraInfo();
-    	      Camera.getCameraInfo(i, info);
-    	      if (info.facing == CameraInfo.CAMERA_FACING_FRONT || info.facing == CameraInfo.CAMERA_FACING_BACK) {
-    	        Log.d(DEBUG_TAG, "Camera found");
-    	        cameraId = i;
-    	        break;
-    	      }
-    	    }*/
-    	    return 0;
-    	  }
-    
-    private void startCamera()
-    {
-    	 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-			      Toast.makeText(this, "No camera on this device", Toast.LENGTH_LONG)
-			          .show();
-			    } else {
-			      cameraId = findFrontFacingCamera();
-			      if (cameraId < 0) {
-			        Toast.makeText(this, "No front facing camera found.",
-			            Toast.LENGTH_LONG).show();
-			      } else {
-			    	  mCamera = Camera.open(cameraId);
-			      }
-    		}
-    }
+//    private int findFrontFacingCamera() {
+//    	  int cameraId = -1;
+//    	    // Search for the front facing camera
+//    	    /*int numberOfCameras = Camera.getNumberOfCameras();
+//    	    for (int i = 0; i < numberOfCameras; i++) {
+//    	      CameraInfo info = new CameraInfo();
+//    	      Camera.getCameraInfo(i, info);
+//    	      if (info.facing == CameraInfo.CAMERA_FACING_FRONT || info.facing == CameraInfo.CAMERA_FACING_BACK) {
+//    	        Log.d(DEBUG_TAG, "Camera found");
+//    	        cameraId = i;
+//    	        break;
+//    	      }
+//    	    }*/
+//    	    return 0;
+//    	  }
+//    
+//    private void startCamera()
+//    {
+//    	 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+//			      Toast.makeText(this, "No camera on this device", Toast.LENGTH_LONG)
+//			          .show();
+//			    } else {
+//			      cameraId = findFrontFacingCamera();
+//			      if (cameraId < 0) {
+//			        Toast.makeText(this, "No front facing camera found.",
+//			            Toast.LENGTH_LONG).show();
+//			      } else {
+//			    	  mCamera = Camera.open(cameraId);
+//			      }
+//    		}
+//    }
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        amanager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 
         mListViewArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
         mListView = (ListView) findViewById(R.id.ListView);
@@ -149,10 +158,26 @@ public class Service extends Activity {
         busThread.start();
         mBusHandler = new BusHandler(busThread.getLooper());
         
+        /*Button for volume change*/
+        /*
+        changeVolume = (Button)findViewById(R.id.button1);
+        changeVolume.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				amanager.setStreamVolume(AudioManager.STREAM_MUSIC, amanager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)-5, AudioManager.FLAG_SHOW_UI + AudioManager.FLAG_PLAY_SOUND);
+
+			}
+		});
+		*/
+        
+        
+        
         /* image view */
         image = (ImageView)findViewById(R.id.imageView1);
         /* Start Camera */
-        startCamera();
+        //startCamera();
         
         /* Start our service. */
         mSimpleService = new SimpleService();
@@ -165,10 +190,10 @@ public class Service extends Activity {
     @Override
     public void onResume() {
     	super.onResume();
-    	if(mCamera == null)
-			mCamera = Camera.open(cameraId);
+    	//if(mCamera == null)
+			//mCamera = Camera.open(cameraId);
 		// Have to start preview here
-		mCamera.startPreview();
+		//mCamera.startPreview();
 
         /* The auto-accept handler is automatically deregistered
          * when the application goes in to the background, so
@@ -269,6 +294,21 @@ public class Service extends Activity {
 
             /* Simply echo the ping message. */
             sendUiMessage(MESSAGE_PING_REPLY, inStr);
+            
+            sensorValue = Float.parseFloat(inStr);
+            //if(sensorValue > 5.0){//I need to check for negatives?
+            if(sensorValue > 0){
+    			//amanager.setStreamVolume(AudioManager.STREAM_MUSIC, amanager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)-5, AudioManager.FLAG_SHOW_UI + AudioManager.FLAG_PLAY_SOUND);
+            	amanager.setStreamVolume(AudioManager.STREAM_MUSIC, amanager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), AudioManager.FLAG_SHOW_UI + AudioManager.FLAG_PLAY_SOUND);
+
+            }
+            
+            if(sensorValue < 0){
+            	//TURN OFF SOUND
+    			amanager.setStreamVolume(AudioManager.STREAM_MUSIC, amanager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)-10, AudioManager.FLAG_SHOW_UI + AudioManager.FLAG_PLAY_SOUND);
+            }
+            
+            
             return inStr;
         }        
 
@@ -345,6 +385,13 @@ public class Service extends Activity {
 		    
 		    return featureStringList;
         }
+        
+        //TO DO
+        /*
+        public int GetSensor(){
+			return sensorValue;
+        	
+        }*/
     }
 
     /* This class will handle all AllJoyn calls. See onCreate(). */
