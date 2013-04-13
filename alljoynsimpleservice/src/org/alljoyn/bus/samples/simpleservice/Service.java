@@ -18,6 +18,8 @@ package org.alljoyn.bus.samples.simpleservice;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 import org.alljoyn.bus.BusAttachment;
@@ -35,6 +37,10 @@ import android.content.Context;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,12 +48,15 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -79,7 +88,17 @@ public class Service extends Activity {
     float sensorValue = 0;
     
 	private List<String> mClients = new ArrayList<String>();
+	private List<CircleView> mClientViews = new ArrayList<CircleView>();
         
+
+    //Touch Screen variables
+	CircleView mCircleView = null;
+	CircleView mCircleViewOuter = null;
+	Handler RedrawHandler = new Handler();
+	
+	int mScrWidth, mScrHeight;
+	android.graphics.PointF mCircleViewPos;
+	
     //private WifiDirectAutoAccept mWfdAutoAccept;
 
     private Handler mHandler = new Handler() {
@@ -199,6 +218,176 @@ public class Service extends Activity {
         
         /* create a picture handler object */
         pich = new PictureHandler(getApplicationContext(),mCamera, image, isImageCaptured);
+        
+
+		final FrameLayout mainView = (android.widget.FrameLayout)findViewById(R.id.interactive_view);
+		
+		Display display = getWindowManager().getDefaultDisplay();
+		mScrWidth = display.getWidth();
+		mScrHeight = display.getHeight();
+		//mScrWidth = mainView.getWidth();
+		//mScrHeight = mainView.getHeight();
+		mCircleViewPos = new android.graphics.PointF();
+		//mBallSpd = new android.graphics.PointF();
+		
+		mCircleViewPos.x = mScrWidth/2;
+		mCircleViewPos.y = mScrHeight/2;
+		//mBallSpd.x = 0;
+		//mBallSpd.y = 0;
+		
+		mCircleView = new CircleView(this, mCircleViewPos.x, mCircleViewPos.y, 45, 0xFF555555, 15f);
+		mainView.addView(mCircleView);
+		mCircleView.invalidate();
+
+		mCircleViewOuter = new CircleView(this, mCircleViewPos.x, mCircleViewPos.y, 5, 0xFFAAAAAA, 15f);
+		mainView.addView(mCircleViewOuter);
+		mCircleViewOuter.invalidate();
+		
+		((SensorManager)getSystemService(Context.SENSOR_SERVICE)).registerListener(
+				new SensorEventListener() {
+					
+					@Override
+					public void onSensorChanged(SensorEvent event) {
+
+				           //set ball speed based on phone tilt (ignore Z axis)
+				           //mBallSpd.x = -event.values[0];
+				           //mBallSpd.y = event.values[1];
+				           //timer event will redraw ball
+					}
+					
+					@Override
+					public void onAccuracyChanged(Sensor sensor, int accuracy) {
+						// TODO Auto-generated method stub
+						
+					}
+				}, 
+				((SensorManager)getSystemService(Context.SENSOR_SERVICE)).getSensorList(Sensor.TYPE_ACCELEROMETER).get(0), 
+				SensorManager.SENSOR_DELAY_NORMAL);
+		
+			mainView.setOnTouchListener(new View.OnTouchListener() {
+
+				Timer mTmr = null;
+				TimerTask mTsk = null;
+			
+			
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					
+					mCircleView.x = event.getX();
+					mCircleView.y = event.getY();
+					
+					mCircleViewOuter.x = mCircleView.x;
+					mCircleViewOuter.y = mCircleView.y;
+					
+					mButtonShowClients.setText("" + mClients.size());
+					for(int i=0; i < mClients.size(); i++)
+					{
+						CircleView clientsCircleView = new CircleView(getApplicationContext(), mScrWidth/4 + (i * 100), mScrHeight/2, 25, 0xFF555555, 15f);	
+						mClientViews.add(i, clientsCircleView);
+						mainView.addView(mClientViews.get(i));	
+						mClientViews.get(i).invalidate();	
+	
+					}
+					
+					if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) 
+					{
+						if(mTmr != null)
+						{
+							mTmr.cancel();
+							mTmr = null;
+							mTsk = null;
+						}
+						
+						mTmr = new Timer();
+						mTsk = new TimerTask() {
+							
+							@Override
+							public void run() {
+								//Log.d("TiltBall","Timer Hit - " + mBallPos.x + ":" + mBallPos.y);
+
+								if(mCircleView.r < 80)
+								{
+									mCircleView.r += 1;			
+								}
+								if(mCircleViewOuter.r < 120)
+								{
+									mCircleViewOuter.r += 2;			
+								}						
+								
+								RedrawHandler.post(new Runnable() {
+									
+									@Override
+									public void run() 
+									{
+										mCircleView.invalidate();
+										mCircleViewOuter.invalidate();
+										for(int i = 0; i < mClientViews.size(); i++)
+										{
+											mClientViews.get(i).invalidate();
+										}
+									}
+								});
+							}
+						};
+						mTmr.schedule(mTsk, 10, 10);
+					} 
+					else if (event.getAction() == android.view.MotionEvent.ACTION_UP) 
+					{		
+						if(mTmr != null)
+						{
+							mTmr.cancel();
+							mTmr = null;
+							mTsk = null;
+						}
+
+						mTmr = new Timer();
+						mTsk = new TimerTask() {
+						
+						@Override
+						public void run() {
+							//Log.d("TiltBall","Timer Hit - " + mBallPos.x + ":" + mBallPos.y);
+
+							if(mCircleView.r > 45)
+							{
+								mCircleView.r -= 2;			
+							}
+							if(mCircleViewOuter.r > 5)
+							{
+								mCircleViewOuter.r -= 3;			
+							}						
+							
+							RedrawHandler.post(new Runnable() {
+								
+								@Override
+								public void run() {
+									mCircleView.invalidate();
+									mCircleViewOuter.invalidate();
+									
+									for(int i = 0; i < mClientViews.size(); i++)
+									{
+										mClientViews.get(i).invalidate();
+										mainView.removeView(mClientViews.get(i));
+									}
+								}
+							});
+						}
+					};
+					mTmr.schedule(mTsk, 10, 10);
+						
+						/*
+						mTmr.cancel();
+						mTmr = null;
+						mTsk = null;
+						
+						mBallView.r = 45;				
+						mBallViewOuter.r = 5;
+						*/
+					}
+					
+					return true;
+				}
+				
+			});
     }
 
     @Override
