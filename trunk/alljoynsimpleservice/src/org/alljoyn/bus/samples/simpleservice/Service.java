@@ -16,9 +16,12 @@
 
 package org.alljoyn.bus.samples.simpleservice;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import org.alljoyn.bus.BusAttachment;
+import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusListener;
 import org.alljoyn.bus.BusObject;
 import org.alljoyn.bus.Mutable;
@@ -64,7 +67,7 @@ public class Service extends Activity {
     private ArrayAdapter<String> mListViewArrayAdapter;
     private ListView mListView;
     private Menu menu;
-    private Button changeVolume;
+    private Button mButtonShowClients;
     
     Camera mCamera;
     private int cameraId = 0;
@@ -74,6 +77,8 @@ public class Service extends Activity {
     private AudioManager amanager;
     
     float sensorValue = 0;
+    
+	private List<String> mClients = new ArrayList<String>();
         
     //private WifiDirectAutoAccept mWfdAutoAccept;
 
@@ -147,6 +152,15 @@ public class Service extends Activity {
         mListViewArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
         mListView = (ListView) findViewById(R.id.ListView);
         mListView.setAdapter(mListViewArrayAdapter);
+        
+        mButtonShowClients = (Button)findViewById(R.id.button1);
+        mButtonShowClients.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				DisplayClients();
+			}
+		});
         
         /* Prepare the auto-accept object.  It will not automatically
          * accept any connections until its intercept() method is called.
@@ -269,8 +283,7 @@ public class Service extends Activity {
 			mCamera.stopPreview();
 			mCamera.release();
 			mCamera = null;
-		    }
-		
+		    }		
     }
     
     @Override
@@ -279,6 +292,17 @@ public class Service extends Activity {
 		super.onStart();
 
 	}
+    
+
+	private void DisplayClients()
+	{
+		mListViewArrayAdapter.add("Clients List: ");
+		for(int i=0; i < mClients.size(); i++)
+		{
+			mListViewArrayAdapter.add(mClients.get(i));
+		}
+	}
+	
     /* The class that is our AllJoyn service.  It implements the SimpleInterface. */
     class SimpleService implements SimpleInterface, BusObject {
 
@@ -291,7 +315,8 @@ public class Service extends Activity {
          */
         public String Ping(String inStr) {
             sendUiMessage(MESSAGE_PING, inStr);
-
+            
+            
             /* Simply echo the ping message. */
             sendUiMessage(MESSAGE_PING_REPLY, inStr);
             
@@ -310,7 +335,7 @@ public class Service extends Activity {
             
             
             return inStr;
-        }        
+        }
 
         /* Helper function to send a message to the UI thread. */
         private void sendUiMessage(int what, Object obj) {
@@ -326,9 +351,7 @@ public class Service extends Activity {
          */
         
         public String GetPicture(String inStr)
-        {
-        	
-        	
+        {        	
         	try
         	{
         		isImageCaptured.acquire();
@@ -385,6 +408,20 @@ public class Service extends Activity {
 		    
 		    return featureStringList;
         }
+
+		@Override
+		public void RegisterClient(String clientName) throws BusException {
+			mClients.add(clientName);
+		}
+
+		@Override
+		public void UnRegisterClient(String clientName) throws BusException {
+			if(mClients.contains((String) clientName))
+			{
+				mClients.remove((String) clientName);
+			}
+		}
+		
         
         //TO DO
         /*
