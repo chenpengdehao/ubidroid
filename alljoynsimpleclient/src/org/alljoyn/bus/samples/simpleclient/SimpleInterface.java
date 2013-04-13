@@ -44,4 +44,8 @@ public interface SimpleInterface {
     String GetPicture(String inStr) throws BusException; //inStr is the string
     @BusMethod
     String[] GetFeature() throws BusException; //inStr is the string
+    @BusMethod
+    void RegisterClient(String clientName) throws BusException;
+    @BusMethod
+    void UnRegisterClient(String clientName) throws BusException;
 }

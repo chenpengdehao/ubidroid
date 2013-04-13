@@ -454,17 +454,32 @@ public class Client extends Activity implements SensorEventListener {
                 	mSessionId = sessionId.value;
                 	mIsConnected = true;
                 	mHandler.sendEmptyMessage(MESSAGE_STOP_PROGRESS_DIALOG);
+                	
+                	try {
+						mSimpleInterface.RegisterClient(mBus.getUniqueName());
+					} catch (BusException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 }
                 break;
             }
             
             /* Release all resources acquired in the connect. */
             case DISCONNECT: {
+				try {
+					mSimpleInterface.UnRegisterClient(mBus.getUniqueName());
+				} catch (BusException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
             	mIsStoppingDiscovery = true;
             	if (mIsConnected) {
                 	Status status = mBus.leaveSession(mSessionId);
                     logStatus("BusAttachment.leaveSession()", status);
             	}
+            	
                 mBus.disconnect();
                 getLooper().quit();
                 break;
