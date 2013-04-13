@@ -265,7 +265,9 @@ public class Client extends Activity implements SensorEventListener {
 			}
 			color = !color;
 			//view.setText("" + x);
-			String str = "X value: " + x;
+			//String str = "X value: " + x;
+			//int newX = (int)x;
+			String str = Float.toString(x); 
         	Message msg = mBusHandler.obtainMessage(BusHandler.GETSENSORDATA,str);
             mBusHandler.sendMessage(msg);
 		}
