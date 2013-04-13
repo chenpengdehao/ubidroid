@@ -75,7 +75,7 @@ public class Client extends Activity implements SensorEventListener {
     private static final int MESSAGE_GETSENSORDATA_REPLY = 9;
     private static final int MESSAGE_GETFEATURE = 10;
     private static final int MESSAGE_GETFEATURE_REPLY = 11;
-    private static final String TAG = "SimpleClient";
+    private static final String TAG = "UbiDroidClient";
 
     private EditText mEditText;
     private ArrayAdapter<String> mListViewArrayAdapter;
@@ -116,7 +116,7 @@ public class Client extends Activity implements SensorEventListener {
                 case MESSAGE_START_PROGRESS_DIALOG:
                     mDialog = ProgressDialog.show(Client.this, 
                                                   "", 
-                                                  "Finding Simple Service.\nPlease wait...", 
+                                                  "Finding UbiDroid Service.\nPlease wait...", 
                                                   true,
                                                   true);
                     break;
