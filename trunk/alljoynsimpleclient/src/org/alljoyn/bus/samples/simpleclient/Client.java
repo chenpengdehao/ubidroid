@@ -83,9 +83,9 @@ public class Client extends Activity implements SensorEventListener {
     private Menu menu;
     private ImageView iv; 
     private Button mButton;
-    private TextView tv1;
+    //private TextView tv1;
     private Button buttonSensorList;
-    
+    private Button changeSlide;
 	private String feature = "";
     
     //Sensor related variables
@@ -146,7 +146,7 @@ public class Client extends Activity implements SensorEventListener {
                case MESSAGE_GETFEATURE_REPLY:
 	        	    String retFeature = (String) msg.obj;
 	                mListViewArrayAdapter.add("Feature response:  " + retFeature);
-	                tv1.setText(feature);
+	                //tv1.setText(feature);
 	                mEditText.setText("");
 	                break;
                 default:
@@ -164,8 +164,19 @@ public class Client extends Activity implements SensorEventListener {
         mListView = (ListView) findViewById(R.id.ListView);
         mListView.setAdapter(mListViewArrayAdapter);
         
-        mButton = (Button)findViewById(R.id.button1);
-        buttonSensorList = (Button) findViewById(R.id.GetSensors); //main.xml has been modified
+        mButton = (Button)findViewById(R.id.button1);//GET PICTURE
+        
+        changeSlide = (Button)findViewById(R.id.button2); //CHANGE SLIDE
+        changeSlide.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+        
+        buttonSensorList = (Button) findViewById(R.id.button3); //GET FEATURE
         buttonSensorList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -181,11 +192,11 @@ public class Client extends Activity implements SensorEventListener {
             }
         });
         
-        iv = (ImageView)findViewById(R.id.imageView1); //main.xml has been modified
-        tv1 = (TextView) findViewById(R.id.TV1); //main.xml has been modified
+        iv = (ImageView)findViewById(R.id.imageView1); //PICTURE THAT GETS RETURNED
+        //tv1 = (TextView) findViewById(R.id.TV1); //main.xml has been modified
 
         
-		mEditText = (EditText) findViewById(R.id.EditText);
+		mEditText = (EditText) findViewById(R.id.EditText); //PING
         mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_NULL
