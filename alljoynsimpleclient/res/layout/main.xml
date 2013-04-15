@@ -5,6 +5,51 @@
     android:layout_height="fill_parent"
     >
 
+	<LinearLayout 
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		>
+
+		<Button
+		    android:id="@+id/button1"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="0.14"
+		    android:text="Take Picture" />
+
+		<Button
+		    android:id="@+id/button2"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="0.14"
+		    android:text="Change Slide" />
+
+		<Button
+		    android:id="@+id/button3"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="0.14"
+		    android:text="Get Feature" />
+
+		<Button
+		    android:id="@+id/GetSensors"
+		    android:layout_width="89dp"
+		    android:layout_height="wrap_content"
+		    android:text="Access volume" />
+
+	</LinearLayout>
+
+	<EditText
+	    android:id="@+id/EditText"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:ems="10"
+	    android:hint="@string/enter_message_hint" >
+
+	    <requestFocus />
+	</EditText>
+	
 	<ListView
 	    android:id="@+id/ListView"
 	    android:layout_width="fill_parent"
@@ -12,44 +57,10 @@
 	    android:stackFromBottom="true"
 	    android:transcriptMode="alwaysScroll" />
 
-	<LinearLayout 
-		android:orientation="horizontal"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		>
-
-		<EditText
-		    android:id="@+id/EditText"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_gravity="bottom"
-		    android:hint="@string/enter_message_hint" />
-
-		<Button
-		    android:id="@+id/button1"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_weight="0.14"
-		    android:text="Click" />
-
-		<Button
-		    android:id="@+id/GetSensors"
-		    android:layout_width="89dp"
-		    android:layout_height="wrap_content"
-		    android:text="Get List" />
-
-	</LinearLayout>
-
-	<TextView
-	    android:id="@+id/TV1"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:text="TextView" />
-
 	<ImageView
 	    android:id="@+id/imageView1"
 	    android:layout_width="match_parent"
 	    android:layout_height="298dp"
-	    android:src="@drawable/transparent" />
+	    android:src="@drawable/ubidroid_icon" />
 
 </LinearLayout>
