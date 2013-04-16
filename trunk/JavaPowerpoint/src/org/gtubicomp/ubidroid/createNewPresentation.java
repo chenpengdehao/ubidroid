@@ -122,7 +122,7 @@ public class createNewPresentation
 
 		    //FileInputStream is = new FileInputStream("slideshow.ppt"); 
 			//FileInputStream is = new FileInputStream("C:/Users/Susmita/Documents/CS 4590/Lectures_Final/SpeechRecognition_2013.ppt"); 
-			FileInputStream is = new FileInputStream("SpeechRecognition_2013.ppt"); 
+			FileInputStream is = new FileInputStream("Project1_Presentation.ppt"); 
 			SlideShow ppt = new SlideShow(is); 
 		    is.close(); 
 
