@@ -102,53 +102,57 @@ public class createNewPresentation
 	{
 			//http://www.coderanch.com/t/451836/open-source/display-powerpoint-slide-java-applet
 			try{
-//		    SlideShow slideShow = new SlideShow();
-//		    Slide slide = slideShow.createSlide();
-//		    TextBox title = slide.addTitle(); 
-//		    title.setText("UbiDroid rocks! "); 
-//		    RichTextRun richtextrun = title.getTextRun().getRichTextRuns()[0]; 
-//		    richtextrun.setFontSize(100); 
-//		    richtextrun.setFontName("Arial"); 
-//		    richtextrun.setBold(true); 
-//		    richtextrun.setItalic(true); 
-//		    //richtextrun.setUnderlined(true); 
-//		    richtextrun.setFontColor(Color.blue); 
-//		    richtextrun.setAlignment(TextBox.AlignLeft); 
-//		    FileOutputStream out = new FileOutputStream("slideshow.ppt");
-//		    slideShow.write(out);
-//		    out.close();
-		    
-		    //convert ppt slide into image 
+	//		    SlideShow slideShow = new SlideShow();
+	//		    Slide slide = slideShow.createSlide();
+	//		    TextBox title = slide.addTitle(); 
+	//		    title.setText("UbiDroid rocks! "); 
+	//		    RichTextRun richtextrun = title.getTextRun().getRichTextRuns()[0]; 
+	//		    richtextrun.setFontSize(100); 
+	//		    richtextrun.setFontName("Arial"); 
+	//		    richtextrun.setBold(true); 
+	//		    richtextrun.setItalic(true); 
+	//		    //richtextrun.setUnderlined(true); 
+	//		    richtextrun.setFontColor(Color.blue); 
+	//		    richtextrun.setAlignment(TextBox.AlignLeft); 
+	//		    FileOutputStream out = new FileOutputStream("slideshow.ppt");
+	//		    slideShow.write(out);
+	//		    out.close();
+			    
+			    //convert ppt slide into image 
+	
+			    //FileInputStream is = new FileInputStream("slideshow.ppt"); 
+				//FileInputStream is = new FileInputStream("C:/Users/Susmita/Documents/CS 4590/Lectures_Final/SpeechRecognition_2013.ppt"); 
+				FileInputStream is = new FileInputStream("Project1_Presentation.ppt"); 
+				SlideShow ppt = new SlideShow(is); 
+			    is.close(); 
+	
+			    Dimension pgsize = ppt.getPageSize(); 
+	
+			    Slide[] slideNew = ppt.getSlides(); 
+			    for (int i = 0; i < slideNew.length; i++) { 
 
-		    //FileInputStream is = new FileInputStream("slideshow.ppt"); 
-			//FileInputStream is = new FileInputStream("C:/Users/Susmita/Documents/CS 4590/Lectures_Final/SpeechRecognition_2013.ppt"); 
-			FileInputStream is = new FileInputStream("Project1_Presentation.ppt"); 
-			SlideShow ppt = new SlideShow(is); 
-		    is.close(); 
-
-		    Dimension pgsize = ppt.getPageSize(); 
-
-		    Slide[] slideNew = ppt.getSlides(); 
-		    for (int i = 0; i < slideNew.length; i++) { 
-
-		    BufferedImage img = new BufferedImage(pgsize.width, pgsize.height, BufferedImage.TYPE_INT_RGB); 
-		    Graphics2D graphics = img.createGraphics(); 
-		    //clear the drawing area 
-		    graphics.setPaint(Color.white); 
-		    //graphics.setBackground(Color.red); 
-		    graphics.fill(new Rectangle2D.Float(0, 0, pgsize.width, pgsize.height)); 
-
-		    //render 
-		    slideNew[i].draw(graphics); 
-
-		    //save the output 
-		    FileOutputStream outAgain = new FileOutputStream("slide-" + (i+1) + ".png"); 
-		    javax.imageio.ImageIO.write(img, "png", outAgain); 
-		    outAgain.close(); 
-		    } 
-		    
+				    BufferedImage img = new BufferedImage(pgsize.width, pgsize.height, BufferedImage.TYPE_INT_RGB); 
+				    Graphics2D graphics = img.createGraphics(); 
+				    //clear the drawing area 
+				    graphics.setPaint(Color.white); 
+				    //graphics.setBackground(Color.red); 
+				    graphics.fill(new Rectangle2D.Float(0, 0, pgsize.width, pgsize.height)); 
+		
+				    //render 
+				    slideNew[i].draw(graphics); 
+		
+				    //save the output 
+				    FileOutputStream outAgain = new FileOutputStream("slide-" + (i+1) + ".png"); 
+				    javax.imageio.ImageIO.write(img, "png", outAgain); 
+				    outAgain.close(); 
+			    } 
+			    
 			}
-			catch(Exception e){}
+			catch(Exception e){
+				System.out.println("error");
+			}
+			
+			//Display the first beginning slide
 			JFrame frame = new JFrame();
 			frame.setSize(1200, 1000);
 			JPanel panel = new JPanel(); 
@@ -163,6 +167,33 @@ public class createNewPresentation
 		    panel.add(label);
 		    frame.getContentPane().add(panel); 
 		    frame.setVisible(true);
+		    
+		    int slideNum = 1;
+		    while(slideNum<6){
+			    if(str == "n" && slideNum < 5){//will not do next on the 5th slide
+			    	slideNum++;
+			    }
+			    if(str == "p" && slideNum >1){ //will not do previous on the 1st slide
+			    	slideNum--;
+			    }
+			    
+			    panel = new JPanel(); 
+			    panel.setSize(500,640);
+			    //panel.setBackground(Color.WHITE); 
+			    String string = "slide-"+slideNum+".png";
+			    System.out.println("String " + string);
+			    icon = new ImageIcon(string); 
+			    label = new JLabel(); 
+			    label.setIcon(icon);
+			    //JButton next = new JButton();
+			    //next.setText("Next slide");
+			    //panel.add(next);
+			    panel.add(label);
+			    frame.getContentPane().add(panel);
+			    frame.setVisible(true);
+		    
+		    }
+		    /*
 		    for (int i = 2; i<10; i++){
 			    try {
 					Thread.sleep(5000);
@@ -191,6 +222,7 @@ public class createNewPresentation
 			    frame.setVisible(true);
 			    //MouseEvent e = new MouseEvent()
 		    }
+		    */
 		}
 	
 	public static void start_service()
