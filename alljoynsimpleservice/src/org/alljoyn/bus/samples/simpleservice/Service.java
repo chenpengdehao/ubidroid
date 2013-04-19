@@ -87,8 +87,17 @@ public class Service extends Activity {
     
     float sensorValue = 0;
     
-	private List<String> mClients = new ArrayList<String>();
+	//private List<UbiDroidClient> mClients = new ArrayList<UbiDroidClient>();
+
+	private List<String> mClients2 = new ArrayList<String>();
+	private List<UbiDroidClient> mClients1 = new ArrayList<UbiDroidClient>();
+	
+	//private String[][] clientServices = new String[10][2];
+	
 	private List<CircleView> mClientViews = new ArrayList<CircleView>();
+	CircleView clientsCircleView = null;
+	private String clientInfo = "";
+
         
 
     //Touch Screen variables
@@ -243,6 +252,7 @@ public class Service extends Activity {
 		mainView.addView(mCircleViewOuter);
 		mCircleViewOuter.invalidate();
 		
+		
 		((SensorManager)getSystemService(Context.SENSOR_SERVICE)).registerListener(
 				new SensorEventListener() {
 					
@@ -278,19 +288,20 @@ public class Service extends Activity {
 					
 					mCircleViewOuter.x = mCircleView.x;
 					mCircleViewOuter.y = mCircleView.y;
+
+					mButtonShowClients.setText(clientInfo);
 					
-					mButtonShowClients.setText("" + mClients.size());
-					for(int i=0; i < mClients.size(); i++)
-					{
-						CircleView clientsCircleView = new CircleView(getApplicationContext(), mScrWidth/4 + (i * 100), mScrHeight/2, 25, 0xFF555555, 15f);	
-						mClientViews.add(i, clientsCircleView);
-						mainView.addView(mClientViews.get(i));	
-						mClientViews.get(i).invalidate();	
-	
-					}
 					
 					if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) 
 					{
+						for(int i=0; i < mClients1.size(); i++)
+						{
+							clientsCircleView = new CircleView(getApplicationContext(), mScrWidth/2, mScrHeight/3 + (i * 100), 25, 0xFF555555, 15f);	
+							mClientViews.add(i, clientsCircleView);
+							mainView.addView(mClientViews.get(i));	
+							mClientViews.get(i).invalidate();	
+						}
+						
 						if(mTmr != null)
 						{
 							mTmr.cancel();
@@ -300,7 +311,8 @@ public class Service extends Activity {
 						
 						mTmr = new Timer();
 						mTsk = new TimerTask() {
-							
+
+							boolean valueSet = false;
 							@Override
 							public void run() {
 								//Log.d("TiltBall","Timer Hit - " + mBallPos.x + ":" + mBallPos.y);
@@ -312,8 +324,36 @@ public class Service extends Activity {
 								if(mCircleViewOuter.r < 120)
 								{
 									mCircleViewOuter.r += 2;			
-								}						
-								
+								}	
+								for(int i=0; i < mClientViews.size(); i ++)
+								{
+									if((Math.abs((mCircleView.x - mClientViews.get(i).x)) <= mClientViews.get(i).r) &&
+										(Math.abs((mCircleView.y - mClientViews.get(i).y)) <= mClientViews.get(i).r))
+									{
+										if(mClientViews.get(i).r < 150)
+										{
+											mClientViews.get(i).r += 3;
+										}
+										if(mCircleViewOuter.r > 5)
+										{
+											mCircleViewOuter.r -= 3;			
+										}
+										if(!valueSet)
+										{
+											clientInfo = "Used: " + mClients1.get(i).getClientService();
+											//clientInfo = mClients1.get(i).getClientName();
+											valueSet = true;
+										}
+									}
+									else if(mClientViews.get(i).r > 25)
+									{
+										mClientViews.get(i).r -= 4;			
+										if(mCircleViewOuter.r < 120)
+										{
+											mCircleViewOuter.r += 2;			
+										}	
+									}
+								}
 								RedrawHandler.post(new Runnable() {
 									
 									@Override
@@ -333,6 +373,14 @@ public class Service extends Activity {
 					} 
 					else if (event.getAction() == android.view.MotionEvent.ACTION_UP) 
 					{		
+						mButtonShowClients.setText("");
+						clientInfo = "";
+						for(int i = 0; i < mClientViews.size(); i++)
+						{
+							mClientViews.get(i).invalidate();
+							mainView.removeView(mClientViews.get(i));
+							mClientViews.remove(i);
+						}
 						if(mTmr != null)
 						{
 							mTmr.cancel();
@@ -363,11 +411,6 @@ public class Service extends Activity {
 									mCircleView.invalidate();
 									mCircleViewOuter.invalidate();
 									
-									for(int i = 0; i < mClientViews.size(); i++)
-									{
-										mClientViews.get(i).invalidate();
-										mainView.removeView(mClientViews.get(i));
-									}
 								}
 							});
 						}
@@ -472,7 +515,7 @@ public class Service extends Activity {
 			mCamera.stopPreview();
 			mCamera.release();
 			mCamera = null;
-		    }		
+		    }
     }
     
     @Override
@@ -486,9 +529,9 @@ public class Service extends Activity {
 	private void DisplayClients()
 	{
 		mListViewArrayAdapter.add("Clients List: ");
-		for(int i=0; i < mClients.size(); i++)
+		for(int i=0; i < mClients1.size(); i++)
 		{
-			mListViewArrayAdapter.add(mClients.get(i));
+			//mListViewArrayAdapter.add(mClients.get(i));
 		}
 	}
 	
@@ -599,18 +642,114 @@ public class Service extends Activity {
         }
 
 		@Override
-		public void RegisterClient(String clientName) throws BusException {
-			mClients.add(clientName);
+		public void RegisterClient(String clientName) throws BusException 
+		{
+			/*
+			if(!mClients.contains(new UbiDroidClient(clientName, "None")))
+			{
+				mClients.add(mClients.size(), new UbiDroidClient(clientName, "None"));
+			}
+			*/
+			boolean isPresent = false;
+			for(int i = 0; i < mClients1.size(); i++)
+			{
+				if(mClients1.get(i).getClientName().equals(clientName))	
+				{
+					isPresent = true;
+				}
+			}
+			if(!isPresent)
+			{
+				mClients1.add(mClients1.size(), new UbiDroidClient(clientName, "None"));				
+			}
+			
+			/*
+			if(!mClients.contains(clientName))
+			{
+				mClients.add(mClients.size(), clientName);
+				clientServices[mClients.size()][0] = clientName;
+				clientServices[mClients.size()][1] = "None";
+			}
+			*/
 		}
 
 		@Override
-		public void UnRegisterClient(String clientName) throws BusException {
-			if(mClients.contains((String) clientName))
+		public void UnRegisterClient(String clientName) throws BusException 
+		{
+			
+			for(int i = 0; i < mClients1.size(); i++)
 			{
-				mClients.remove((String) clientName);
+				if(mClients1.get(i).getClientName().equals(clientName))	
+				{
+					mClients1.remove(i);
+				}
 			}
+			/*
+			if(mClients.contains(clientName))
+			{
+				mClients.remove(clientName);
+			}
+			for(int i = 0; i < clientServices.length; i++)
+			{
+				if(clientServices[i][0] == clientName)
+				{
+					clientServices[i][0] = "";
+					clientServices[i][1] = "";
+				}
+			}
+			*/
 		}
-		
+
+		@Override
+		public void RegisterService(String clientName, String serviceName) throws BusException
+		{
+			
+			for(int i=0; i< mClients1.size(); i++)
+			{
+				//clientInfo = tempName + " " + clientName + i;
+				if(mClients1.get(i).getClientName().equals(clientName))			
+				{
+					mClients1.get(i).setClientService(serviceName);
+				}
+			}
+			/*
+			if(mClients.contains(clientName))
+			{
+				//mClients.remove(clientName);
+			}
+			
+			for(int i = 0; i < clientServices.length; i++)
+			{
+				if(clientServices[i][0] == clientName)
+				{
+					//clientServices[i][0] = "";
+					clientServices[i][1] = serviceName;
+				}
+			}
+			*/
+		}
+
+		@Override
+		public void UnRegisterService(String clientName, String serviceName) throws BusException {
+			
+			for(int i=0; i< mClients1.size(); i++)
+			{
+				if(mClients1.get(i).getClientName().equals(clientName))				
+				{
+					mClients1.get(i).setClientService("None");
+				}
+			}
+			/*
+			for(int i = 0; i < clientServices.length; i++)
+			{
+				if(clientServices[i][0] == clientName)
+				{
+					//clientServices[i][0] = "";
+					clientServices[i][1] = "";
+				}
+			}
+			*/
+		}		
         
         //TO DO
         /*
