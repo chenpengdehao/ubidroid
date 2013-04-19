@@ -175,14 +175,27 @@ public class Client extends Activity implements SensorEventListener {
         mListView = (ListView) findViewById(R.id.ListView);
         mListView.setAdapter(mListViewArrayAdapter);
         
-        mButton = (Button)findViewById(R.id.button1);//GET PICTURE
-        
-        changeSlide = (Button)findViewById(R.id.button2); //CHANGE SLIDE
+        mButton = (Button)findViewById(R.id.button1);//NEXT PICTURE
+        mButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				 Message msg = mBusHandler.obtainMessage(BusHandler.PING, 
+                         "p");
+				 mBusHandler.sendMessage(msg);
+				
+			}
+		});
+        changeSlide = (Button)findViewById(R.id.button2); //PREV SLIDE
         changeSlide.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				 Message msg = mBusHandler.obtainMessage(BusHandler.PING, 
+                         "n");
+				 mBusHandler.sendMessage(msg);
 				
 			}
 		});
