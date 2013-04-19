@@ -40,6 +40,7 @@ public class createNewPresentation
     static boolean sessionEstablished = false;
     static int sessionId;
     static boolean firstTime = true;
+    static int slideNum = 1;
 	
     public static class SampleService implements SampleInterface, BusObject {
 
@@ -171,8 +172,8 @@ public class createNewPresentation
 			    frame.setVisible(true);
 			    firstTime = false;
 			}
-		    int slideNum = 1;
-		    while(slideNum<6 && !firstTime){
+		    //int slideNum = 1;
+		    if(slideNum<6 && !firstTime){
 		    	
 			    if(str == "n" && slideNum < 5){//will not do next on the 5th slide
 			    	slideNum++;
