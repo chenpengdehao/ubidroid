@@ -48,4 +48,9 @@ public interface SimpleInterface {
     void RegisterClient(String clientName) throws BusException;
     @BusMethod
     void UnRegisterClient(String clientName) throws BusException;
+
+    @BusMethod
+    void RegisterService(String clientName, String serviceName) throws BusException;    
+    @BusMethod
+    void UnRegisterService(String clientName, String serviceName) throws BusException;
 }

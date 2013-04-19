@@ -85,8 +85,12 @@ public class Client extends Activity implements SensorEventListener {
     private Button mButton;
     //private TextView tv1;
     private Button buttonSensorList;
+    private Button buttonAccessVolume;
     private Button changeSlide;
 	private String feature = "";
+	private boolean usingCamera = false;
+	private boolean usingFeatures = false;
+	private boolean usingSensorData = false;
     
     //Sensor related variables
     private long lastUpdate;
@@ -145,7 +149,7 @@ public class Client extends Activity implements SensorEventListener {
                     break;
                case MESSAGE_GETFEATURE_REPLY:
 	        	    String retFeature = (String) msg.obj;
-	                mListViewArrayAdapter.add("Feature response:  " + retFeature);
+	                mListViewArrayAdapter.add("Feature response:  " + feature);
 	                //tv1.setText(feature);
 	                mEditText.setText("");
 	                break;
@@ -155,6 +159,13 @@ public class Client extends Activity implements SensorEventListener {
             }
         };
 
+    private void resetAccessFlags()
+    {
+    	usingCamera = false;
+    	usingFeatures = false;
+    	usingSensorData = false;
+    }
+        
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -180,7 +191,7 @@ public class Client extends Activity implements SensorEventListener {
         buttonSensorList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            	
+            	resetAccessFlags();
             	/* Call the remote object's Ping method. */
                 //Message msg = mBusHandler.obtainMessage(BusHandler.PING, 
                 //                                           view.getText().toString());
@@ -188,9 +199,18 @@ public class Client extends Activity implements SensorEventListener {
             	//Message msg = mBusHandler.obtainMessage(BusHandler.GETPICTURE,str);
             	Message msg = mBusHandler.obtainMessage(BusHandler.GETFEATURE,str);
                 mBusHandler.sendMessage(msg);
-
             }
         });
+        
+        buttonAccessVolume = (Button) findViewById(R.id.GetSensors);//GET SENSOR DATA
+        buttonAccessVolume.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				resetAccessFlags();
+				usingSensorData = true;
+			}
+		});
         
         iv = (ImageView)findViewById(R.id.imageView1); //PICTURE THAT GETS RETURNED
         //tv1 = (TextView) findViewById(R.id.TV1); //main.xml has been modified
@@ -278,9 +298,12 @@ public class Client extends Activity implements SensorEventListener {
 			//view.setText("" + x);
 			//String str = "X value: " + x;
 			//int newX = (int)x;
-			String str = Float.toString(x); 
-        	Message msg = mBusHandler.obtainMessage(BusHandler.GETSENSORDATA,str);
-            mBusHandler.sendMessage(msg);
+			if(usingSensorData)
+			{
+				String str = Float.toString(x); 
+				Message msg = mBusHandler.obtainMessage(BusHandler.GETSENSORDATA,str);
+				mBusHandler.sendMessage(msg);
+			}
 		}
    	}
     
@@ -565,10 +588,12 @@ public class Client extends Activity implements SensorEventListener {
                         {
                                 sendUiMessage(MESSAGE_GETSENSORDATA, msg.obj);
 
+                                mSimpleInterface.RegisterService(mBus.getUniqueName(), "SensorData");
+                                
                                 String reply = mSimpleInterface.Ping((String) msg.obj);
                                 //sendUiMessage(MESSAGE_GETSENSORDATA_REPLY, reply);
                         }
-                } 
+                }
                 catch (BusException ex) 
                 {
                         logException("SimpleInterface.SendSensorData()", ex);
@@ -580,7 +605,8 @@ public class Client extends Activity implements SensorEventListener {
             	try {
                 	if (mSimpleInterface != null) {
                 		sendUiMessage(MESSAGE_GETFEATURE, msg.obj); //request sent
-                		
+
+                        mSimpleInterface.RegisterService(mBus.getUniqueName(), "Feature List");
                 		String[] featureInfoList = mSimpleInterface.GetFeature(); //response from service
 						
 						if(featureInfoList == null){
