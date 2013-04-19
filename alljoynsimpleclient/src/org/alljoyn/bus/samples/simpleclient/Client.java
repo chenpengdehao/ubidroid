@@ -182,7 +182,7 @@ public class Client extends Activity implements SensorEventListener {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				 Message msg = mBusHandler.obtainMessage(BusHandler.PING, 
-                         "p");
+                         "n");
 				 mBusHandler.sendMessage(msg);
 				
 			}
@@ -194,7 +194,7 @@ public class Client extends Activity implements SensorEventListener {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				 Message msg = mBusHandler.obtainMessage(BusHandler.PING, 
-                         "n");
+                         "p");
 				 mBusHandler.sendMessage(msg);
 				
 			}
