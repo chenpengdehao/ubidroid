@@ -39,6 +39,7 @@ public class createNewPresentation
     
     static boolean sessionEstablished = false;
     static int sessionId;
+    static boolean firstTime = true;
 	
     public static class SampleService implements SampleInterface, BusObject {
 
@@ -153,37 +154,40 @@ public class createNewPresentation
 			}
 			
 			//Display the first beginning slide
-			JFrame frame = new JFrame();
-			frame.setSize(1200, 1000);
-			JPanel panel = new JPanel(); 
-		    panel.setSize(500,640);
-		    //panel.setBackground(Color.WHITE); 
-		    ImageIcon icon = new ImageIcon("slide-1.png"); 
-		    JLabel label = new JLabel(); 
-		    label.setIcon(icon);
-		    //JButton next = new JButton();
-		    //next.setText("Next slide");
-		    //panel.add(next);
-		    panel.add(label);
-		    frame.getContentPane().add(panel); 
-		    frame.setVisible(true);
-		    
+			if(firstTime){
+				JFrame frame = new JFrame();
+				frame.setSize(1200, 1000);
+				JPanel panel = new JPanel(); 
+			    panel.setSize(500,640);
+			    //panel.setBackground(Color.WHITE); 
+			    ImageIcon icon = new ImageIcon("slide-1.png"); 
+			    JLabel label = new JLabel(); 
+			    label.setIcon(icon);
+			    //JButton next = new JButton();
+			    //next.setText("Next slide");
+			    //panel.add(next);
+			    panel.add(label);
+			    frame.getContentPane().add(panel); 
+			    frame.setVisible(true);
+			    firstTime = false;
+			}
 		    int slideNum = 1;
-		    while(slideNum<6){
+		    while(slideNum<6 && !firstTime){
+		    	
 			    if(str == "n" && slideNum < 5){//will not do next on the 5th slide
 			    	slideNum++;
 			    }
 			    if(str == "p" && slideNum >1){ //will not do previous on the 1st slide
 			    	slideNum--;
 			    }
-			    
-			    panel = new JPanel(); 
+			    JFrame frame = new JFrame();
+			    JPanel panel = new JPanel(); 
 			    panel.setSize(500,640);
 			    //panel.setBackground(Color.WHITE); 
 			    String string = "slide-"+slideNum+".png";
 			    System.out.println("String " + string);
-			    icon = new ImageIcon(string); 
-			    label = new JLabel(); 
+			    ImageIcon icon = new ImageIcon(string); 
+			    JLabel label = new JLabel(); 
 			    label.setIcon(icon);
 			    //JButton next = new JButton();
 			    //next.setText("Next slide");
