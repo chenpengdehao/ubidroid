@@ -1,0 +1,1 @@
+This is a new infrastructure designed to allow multiple android devices to communicate with one another and access the features of one another.
